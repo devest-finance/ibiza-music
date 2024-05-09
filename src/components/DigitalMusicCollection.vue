@@ -103,7 +103,7 @@
             </div>
             <div class="tracks">
               <h1>Track list</h1>
-              <div v-if="tracks.length > 0" class="track_list">
+              <div class="track_list">
                 <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }" @click="play(index)">
                   <i class="fa-solid fa-bars"></i>
                   <img src="../assets/images/streaming/LennyIbizzare.png"></img>
@@ -163,7 +163,7 @@
   const repeatOn = ref(false);
   const playOn = ref(false);
 
-  let tracks = ref(null);
+  let tracks = ref({});
   let active_index = ref(0);
   
   onBeforeMount(async () => {
