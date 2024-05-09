@@ -87,7 +87,7 @@
             <div class="player_controls">
               <i :class="{'fa-solid': true, 'fa-shuffle': true, 'icon_on': shuffleOn, 'icon_off': !shuffleOn}" @click="shuffle()"></i>
               <i class="fa-solid fa-backward icon_off"></i>
-              <i class="fa-solid fa-play icon_off"></i>
+              <i :class="{'fa-solid': true, 'fa-pause': playOn, 'fa-play': !playOn, 'icon_off': true}" @click="playIcon()"></i>
               <i class="fa-solid fa-forward icon_off"></i>
               <i :class="{'fa-solid': true, 'fa-repeat': true, 'icon_on': repeatOn, 'icon_off': !repeatOn}" @click="repeat()"></i>
             </div>
@@ -96,6 +96,33 @@
             <div class="title">
               <h1>DEEP TECH SIZZLE</h1>
               <h1>9,99$</h1>
+            </div>
+            <div class="title_info">
+              <p><strong>Artist: </strong>Lenny Ibizzare</p>
+              <p><strong>Genre: </strong>Ambient, Electronic</p>
+            </div>
+            <div class="tracks">
+              <h1>Track list</h1>
+              <div v-if="tracks.length > 0" class="track_list">
+                <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }" @click="play(index)">
+                  <i class="fa-solid fa-bars"></i>
+                  <img src="../assets/images/streaming/LennyIbizzare.png"></img>
+                  <div class="track_name">
+                    <h4>{{ track.name }}</h4>
+                    <p>Lenny Ibizarre</p>
+                  </div>
+                  <div class="duration">
+                    <h4>{{track.duration}}</h4>
+                    <p>2024</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p><strong>Release Date: </strong>25 NOV 2016</p>
+            <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
+            <div class="product_action_row">
+              <button class="first_button" @click="buy()">Buy</button>
+              <button class="third_button" @click="sell()">Sell</button>
             </div>
           </div>
         </div>
@@ -134,6 +161,10 @@
   const secondPage = ref(false);
   const shuffleOn = ref(false);
   const repeatOn = ref(false);
+  const playOn = ref(false);
+
+  let tracks = ref(null);
+  let active_index = ref(0);
   
   onBeforeMount(async () => {
     await getData();
@@ -144,6 +175,7 @@
     totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
   
     await checkIfConnected();
+    await loadTracks();
   });
     
   
@@ -172,7 +204,79 @@
   function repeat() {
     repeatOn.value = !repeatOn.value;
   }
-  
+  function playIcon() {
+    playOn.value = !playOn.value;
+  }
+
+  async function loadTracks() {
+      tracks.value = [{
+        name: "Computers Have Control",
+        duration: "7:39",
+        playUrl: "",
+        active: true
+      },{
+        name: "Sgt. Poppers Skronk Quatet",
+        duration: "9:06",
+        playUrl: "",
+        active: false
+      }, {
+        name: "Balearism",
+        duration: "7:17",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Gearbox",
+        duration: "7:08",
+        playUrl: "",
+        active: false
+      }, {
+        name: "Girlz",
+        duration: "8:46",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Deep Finca",
+        duration: "6:47",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Psychotropic",
+        duration: "9:43",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Dirt Groove",
+        duration: "7:44",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Drivesharf",
+        duration: "8:45",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Nu York Dub",
+        duration: "4:48",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Baseheadz United",
+        duration: "4:48",
+        playUrl: "",
+        active: false
+      }, {
+        name:"Kleptomania",
+        duration: "7:15",
+        playUrl: "",
+        active: false
+      },{
+        name: "Dawn of The Acid Warrior",
+        duration: "6:22",
+        playUrl: "",
+        active: false
+      }]
+  }
+    
   async function createToken() {
     if (localStorage.getItem("devest-token")) {
       console.log('Token already exists!');
@@ -321,33 +425,10 @@
     }
   }
   
-  async function watch() {
-    const token = localStorage.getItem("devest-token");
-    const wallet = localStorage.getItem("devest-wallet");
-    const productAddress = product.value.address;
-    const networkChainID = network.value.chainId;
-  
-    const xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("GET", "https://stream.juice.com.hr/authorize");
-    xmlhttp.setRequestHeader("signature", token);
-    xmlhttp.setRequestHeader("network", networkChainID);
-    xmlhttp.setRequestHeader("address", wallet);
-    xmlhttp.setRequestHeader("asset", productAddress);
-    xmlhttp.withCredentials = true;
-    xmlhttp.send();
-  
-    if (xmlhttp.readyState === XMLHttpRequest.DONE) {
-      return xmlhttp;
-    }
-  
-    xmlhttp.onreadystatechange = () => {
-      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 200) {
-        watching.value = true;
-      }
-      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 403) {
-        alert("Sorry you are not authorized to watch this stream");
-      }
-    }
+  function play(index) {
+    tracks.value[active_index.value].active = false;
+    tracks.value[index].active = true;
+    active_index.value = index;
   }
   
   function copyProductAddress() {
