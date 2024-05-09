@@ -77,7 +77,7 @@
       <div class="content">
         <div class="title">
           <p><span @click="changePage()"><</span>Digital Music Collection</p>
-          <button>Connect Wallet</button>
+          <button><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
         </div>
         <div class="product_row">
           <div class="player">
@@ -85,15 +85,18 @@
               <img src="../assets/images/streaming/LennyIbizzare.png">
             </div>
             <div class="player_controls">
-              <i class="fa-solid fa-shuffle"></i>
-              <i class="fa-solid fa-backward"></i>
-              <i class="fa-solid fa-play"></i>
-              <i class="fa-solid fa-forward"></i>
-              <i class="fa-solid fa-repeat"></i>
+              <i :class="{'fa-solid': true, 'fa-shuffle': true, 'icon_on': shuffleOn, 'icon_off': !shuffleOn}" @click="shuffle()"></i>
+              <i class="fa-solid fa-backward icon_off"></i>
+              <i class="fa-solid fa-play icon_off"></i>
+              <i class="fa-solid fa-forward icon_off"></i>
+              <i :class="{'fa-solid': true, 'fa-repeat': true, 'icon_on': repeatOn, 'icon_off': !repeatOn}" @click="repeat()"></i>
             </div>
           </div>
           <div class="info">
-  
+            <div class="title">
+              <h1>DEEP TECH SIZZLE</h1>
+              <h1>9,99$</h1>
+            </div>
           </div>
         </div>
       </div>
@@ -129,6 +132,8 @@
   const watching = ref(false);
   const firstPage = ref(true);
   const secondPage = ref(false);
+  const shuffleOn = ref(false);
+  const repeatOn = ref(false);
   
   onBeforeMount(async () => {
     await getData();
@@ -160,6 +165,12 @@
   function changePage() {
     firstPage.value = !firstPage.value;
     secondPage.value = !secondPage.value;
+  }
+  function shuffle() {
+    shuffleOn.value = !shuffleOn.value;
+  }
+  function repeat() {
+    repeatOn.value = !repeatOn.value;
   }
   
   async function createToken() {
