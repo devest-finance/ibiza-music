@@ -1,5 +1,5 @@
   .container {
-    font-family: 'Nunito', sans-serif;
+    font-family: '', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -43,6 +43,34 @@
   }
   .title i {
     margin-right: 15px;
+  }
+  .connected {
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+    width: 190px;
+    height: 45px;
+    background-color: rgb(235, 221, 252);
+    border: 1px solid rgb(235, 221, 252);
+    border-radius: 8px;
+    text-align: center;
+    align-items: center;
+  }
+  .connected i {
+    font-size: 20px;
+    margin-right: 0px;
+    cursor: pointer;
+  }
+  .connected p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: black;
+    margin-left: 10px;
+    border-right: 1px solid rgba(250, 250, 250, 0.438);
+  }
+  .wallet_info i {
+    font-size: 12px;
+    margin-right: 0px;
   }
   .cards_row {
     display: flex;
@@ -220,7 +248,7 @@
   .track_list {
     height: 250px;
     overflow: auto;
-    margin: 0 10px;
+    margin: 40px 10px 0px 10px;
   }
   .track_list::-webkit-scrollbar {
     width: 10px;
@@ -293,6 +321,14 @@
     font-size: 12px;
     font-weight: 400;
     line-height: 13px;
+  }
+  .progress_bar {
+    height: 40px;
+    margin: 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(250, 250, 250, 0.39);
+    text-align: center;
+    align-content: center;
   }
   .product_action_row {
     display: grid;

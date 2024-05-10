@@ -3,7 +3,15 @@
       <div class="content">
         <div class="title">
           <p>Digital Music Collection</p>
-          <button @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
+          <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
+          <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
+          <div v-if="isConnected && isNetwork" class="connected">
+            <div class="wallet_info">
+              <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
+              <p><strong>Balance: </strong> {{myBalance.toFixed(5)}} {{ network.nativeCurrency.symbol }}</p>
+            </div>
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </div>
         </div>
         <div class="cards_row">
           <div class="card">
@@ -77,7 +85,15 @@
       <div class="content">
         <div class="title">
           <p><span @click="changePage()"><</span>Digital Music Collection</p>
-          <button><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
+          <button v-if="!isConnected" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
+          <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
+          <div v-if="isConnected && isNetwork" class="connected">
+            <div class="wallet_info">
+                <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
+                <p><strong>Balance: </strong> {{myBalance.toFixed(5)}} {{ network.nativeCurrency.symbol }}</p>
+            </div>
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </div>
         </div>
         <div class="product_row">
           <div class="player">
@@ -95,16 +111,15 @@
           <div class="info">
             <div class="title">
               <h1>DEEP TECH SIZZLE</h1>
-              <h1>9,99$</h1>
+              <h1>{{ price }} {{ network.nativeCurrency.symbol }}</h1>
             </div>
             <div class="title_info">
               <p><strong>Artist: </strong>Lenny Ibizzare</p>
               <p><strong>Genre: </strong>Ambient, Electronic</p>
             </div>
             <div class="tracks">
-              <h1>Track list</h1>
-              <div class="track_list">
-                <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }" @click="play(index)">
+              <div v-if="tracks.length" class="track_list">
+                <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }" @click="play(index, track)">
                   <i class="fa-solid fa-bars"></i>
                   <img src="../assets/images/streaming/LennyIbizzare.png"></img>
                   <div class="track_name">
@@ -120,8 +135,9 @@
             </div>
             <p><strong>Release Date: </strong>25 NOV 2016</p>
             <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
+            <div class="progress_bar"><strong>Available:</strong> {{ totalAvailable - totalPurchased }}/{{ totalAvailable }}</div>
             <div class="product_action_row">
-              <button class="first_button" @click="buy()">Buy</button>
+              <button class="first_button" @click="purchase()">Buy</button>
               <button class="third_button" @click="sell()">Sell</button>
             </div>
           </div>
@@ -151,9 +167,10 @@
   let chainID = ref("");
   let totalAvailable = ref(0n);
   let totalPurchased = ref(0n);
-  let myBalance = ref(0n);
+  let price = ref(0);
+  let myTicketBalance = ref(0n);
+  let myBalance = ref(0);
   let ticketID = ref("");
-  const linkCopied = ref(false);
   
   const purchased = ref(false);
   const watching = ref(false);
@@ -163,7 +180,7 @@
   const repeatOn = ref(false);
   const playOn = ref(false);
 
-  let tracks = ref({});
+  let tracks = ref(null);
   let active_index = ref(0);
   
   onBeforeMount(async () => {
@@ -194,9 +211,20 @@
     }
   });
   
-  function changePage() {
+  async function changePage() {
+    if (!isConnected.value)
+      await connectWallet();
+    if (!isNetwork.value)
+      await switchNetwork(product.value.network);
     firstPage.value = !firstPage.value;
     secondPage.value = !secondPage.value;
+
+    if (secondPage.value) {
+      const response = await devest.request("data/get", [
+      product.value._id,
+      "price", {}]);
+    price.value = (((1 / Math.pow(10, network.value.nativeCurrency.decimals))) * response);
+    }
   }
   function shuffle() {
     shuffleOn.value = !shuffleOn.value;
@@ -309,6 +337,8 @@
   
   
   async function checkIfConnected() {
+    isConnected.value = false;
+    isNetwork.value = false;
     if (typeof window.ethereum !== "undefined") {
       try {
         const accounts = await window.ethereum.request({
@@ -317,18 +347,19 @@
         if (!accounts) {
           localStorage.removeItem("devest-token");
           await connectWallet();
-          isConnected.value = true;
         }
         else if (accounts[0] === localStorage.getItem("devest-wallet") && localStorage.getItem("devest-token")){
           isConnected.value = true;
           await getCurrentNetwork();
           connectedAccount.value = accounts[0];
-          myBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
+          myBalance.value = Number(await web3.value.eth.getBalance(accounts[0]));
+          myBalance.value = myBalance.value / Math.pow(10, 18);
+          
+          myTicketBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
         }
         else if (accounts[0] !== connectedAccount.value) {
           localStorage.removeItem("devest-token");
           await connectWallet();
-          isConnected.value = true;
         }
         else if (accounts[0] === connectedAccount.value && !localStorage.getItem("devest-token")) {
           await createToken();
@@ -342,6 +373,7 @@
   }
   
   async function connectWallet() {
+    debugger;
     if (typeof window.ethereum !== "undefined") {
       try {
         const accounts = await window.ethereum.request({
@@ -349,7 +381,9 @@
         });
         connectedAccount.value = accounts[0];
         isConnected.value = true;
-        myBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
+        myBalance.value = Number(await web3.value.eth.getBalance(accounts[0]));
+        myBalance.value = myBalance.value / Math.pow(10, 18);
+        myTicketBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
         await createToken();
         await getCurrentNetwork();
         console.log("Connected account:", connectedAccount.value);
@@ -425,18 +459,47 @@
     }
   }
   
-  function play(index) {
+  function play(index, track) {
+    debugger;
     tracks.value[active_index.value].active = false;
-    tracks.value[index].active = true;
+    track.active = true;
     active_index.value = index;
+
+    const token = localStorage.getItem("devest-token");
+    const wallet = localStorage.getItem("devest-wallet");
+    const networkChainId = network.value.chainId;
+    const productAddress = product.value.address;
+
+    const xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", "https://stream.juice.com.hr/authorize");
+    xmlhttp.setRequestHeader("signature", token);
+    xmlhttp.setRequestHeader("network", networkChainId);
+    xmlhttp.setRequestHeader("address", wallet);
+    xmlhttp.setRequestHeader("asset", productAddress);
+    xmlhttp.withCredentials = true;
+    xmlhttp.send();
+
+    if (xmlhttp.readyState === XMLHttpRequest.DONE) {
+      return xmlhttp;
+    }
+
+    xmlhttp.onreadystatechange = () => {
+      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 200) {
+          track.playUrl = "https://stream.juice.com.hr/stream/" + index;
+      }
+      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 403) {
+        alert("Sorry you are not authorized to watch this stream");
+      }
+    }
+
+  }
+
+  function transformAddress(address) {
+    return address.slice(0, 5) + "..." + address.slice(address.length - 3)
   }
   
-  function copyProductAddress() {
-    navigator.clipboard.writeText(product.value.address);
-    linkCopied.value = true
-    setTimeout(() => {
-      linkCopied.value = false;
-    }, 2000);
+  function copyAccountAddress() {
+    navigator.clipboard.writeText(connectedAccount.value);
   }
   </script>
   
