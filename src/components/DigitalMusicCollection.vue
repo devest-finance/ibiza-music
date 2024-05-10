@@ -100,11 +100,17 @@
             <div class="player_img">
               <img src="../assets/images/streaming/LennyIbizzare.png">
             </div>
+            <div class="audio_player">
+              <p v-if="(currentTimeMinutes !== null) && (currentTimeSeconds !== 0)">{{ currentTimeMinutes }}:{{ currentTimeSeconds }}</p>
+              <audio ref="audioRef" @timeupdate="handleTimeUpdate" @loadedmetadata="initializeAudioProperties" @ended="next()" autoplay :src="playUrl"></audio>
+              <input type="range" id="progress-bar" max="100" v-model="progress" @input="seek">
+              <p v-if="durationMinutes && durationSeconds">{{ durationMinutes }}:{{ durationSeconds }}</p>
+            </div>
             <div class="player_controls">
               <i :class="{'fa-solid': true, 'fa-shuffle': true, 'icon_on': shuffleOn, 'icon_off': !shuffleOn}" @click="shuffle()"></i>
-              <i class="fa-solid fa-backward icon_off"></i>
-              <i :class="{'fa-solid': true, 'fa-pause': playOn, 'fa-play': !playOn, 'icon_off': true}" @click="playIcon()"></i>
-              <i class="fa-solid fa-forward icon_off"></i>
+              <i class="fa-solid fa-backward icon_off" @click="playPrevious()"></i>
+              <i :class="{'fa-solid': true, 'fa-pause': playOn, 'fa-play': !playOn, 'icon_off': true}" @click="playPause()"></i>
+              <i class="fa-solid fa-forward icon_off" @click="playNext()"></i>
               <i :class="{'fa-solid': true, 'fa-repeat': true, 'icon_on': repeatOn, 'icon_off': !repeatOn}" @click="repeat()"></i>
             </div>
           </div>
@@ -137,7 +143,7 @@
             <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
             <div class="progress_bar"><strong>Available:</strong> {{ totalAvailable - totalPurchased }}/{{ totalAvailable }}</div>
             <div class="product_action_row">
-              <button class="first_button" @click="purchase()">Buy</button>
+              <button class="first_button" @click="purchase()" :disabled="myTicketBalance">Buy</button>
               <button class="third_button" @click="sell()">Sell</button>
             </div>
           </div>
@@ -171,9 +177,9 @@
   let myTicketBalance = ref(0n);
   let myBalance = ref(0);
   let ticketID = ref("");
+  let playUrl = ref("");
   
   const purchased = ref(false);
-  const watching = ref(false);
   const firstPage = ref(true);
   const secondPage = ref(false);
   const shuffleOn = ref(false);
@@ -181,7 +187,14 @@
   const playOn = ref(false);
 
   let tracks = ref(null);
-  let active_index = ref(0);
+  let active_index = ref(null);
+
+  const audioRef = ref(null);
+  const currentTimeMinutes = ref("0");
+  const currentTimeSeconds = ref("00");
+  const durationMinutes = ref("0");
+  const durationSeconds = ref("00");
+  const progress = ref(0);
   
   onBeforeMount(async () => {
     await getData();
@@ -240,67 +253,54 @@
       tracks.value = [{
         name: "Computers Have Control",
         duration: "7:39",
-        playUrl: "",
-        active: true
+        active: false
       },{
         name: "Sgt. Poppers Skronk Quatet",
         duration: "9:06",
-        playUrl: "",
         active: false
       }, {
         name: "Balearism",
         duration: "7:17",
-        playUrl: "",
         active: false
       }, {
         name:"Gearbox",
         duration: "7:08",
-        playUrl: "",
         active: false
       }, {
         name: "Girlz",
         duration: "8:46",
-        playUrl: "",
         active: false
       }, {
         name:"Deep Finca",
         duration: "6:47",
-        playUrl: "",
         active: false
       }, {
         name:"Psychotropic",
         duration: "9:43",
-        playUrl: "",
         active: false
       }, {
         name:"Dirt Groove",
         duration: "7:44",
-        playUrl: "",
         active: false
       }, {
         name:"Drivesharf",
         duration: "8:45",
-        playUrl: "",
         active: false
       }, {
         name:"Nu York Dub",
         duration: "4:48",
-        playUrl: "",
         active: false
       }, {
         name:"Baseheadz United",
         duration: "4:48",
-        playUrl: "",
         active: false
       }, {
         name:"Kleptomania",
         duration: "7:15",
-        playUrl: "",
         active: false
       },{
         name: "Dawn of The Acid Warrior",
         duration: "6:22",
-        playUrl: "",
         active: false
       }]
   }
@@ -373,7 +373,6 @@
   }
   
   async function connectWallet() {
-    debugger;
     if (typeof window.ethereum !== "undefined") {
       try {
         const accounts = await window.ethereum.request({
@@ -420,6 +419,29 @@
     console.log("Network changed to:", chainId);
     window.location.reload();
   }
+
+  function handleTimeUpdate() {
+    if (audioRef.value && audioRef.value.currentTime) {
+      currentTimeMinutes.value = Math.floor(audioRef.value.currentTime / 60);
+      currentTimeSeconds.value = Math.floor(audioRef.value.currentTime) % 60;
+      if (currentTimeSeconds.value < 10) currentTimeSeconds.value = "0" + currentTimeSeconds.value;
+      progress.value = Math.floor((100 / audioRef.value.duration) * audioRef.value.currentTime);
+    }
+  }
+  function initializeAudioProperties() {
+    if (audioRef.value) {
+      durationMinutes.value = Math.floor(audioRef.value.duration / 60);
+      durationSeconds.value = Math.floor(audioRef.value.duration) % 60;
+      if (durationSeconds.value < 10) durationSeconds.value = "0" + durationSeconds.value;
+    }
+  }
+
+  function seek() {
+    if (audioRef.value) {
+      const time = (audioRef.value.duration * progress.value) / 100;
+      audioRef.value.currentTime = time;
+    }
+  }
   
   async function getData() {
     try {
@@ -449,7 +471,7 @@
   
   async function purchase() {
     ticketID.value = (totalPurchased.value + 1n).toString();
-    const ticketPrice = web3.value.utils.toWei(product.value.initPrice, "ether");
+    const ticketPrice = web3.value.utils.toWei("1", "ether");
   
     try {
       await contractInstance.value.methods.purchase(ticketID.value).send({from: connectedAccount.value, value: ticketPrice});
@@ -467,9 +489,9 @@
   }
   
   function play(index, track) {
-    debugger;
-    console.log(myTicketBalance.value);
-    tracks.value[active_index.value].active = false;
+    if (active_index.value !== null) 
+      tracks.value[active_index.value].active = false;
+    
     track.active = true;
     active_index.value = index;
 
@@ -493,13 +515,62 @@
 
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 200) {
-          track.playUrl = "https://stream.juice.com.hr/stream/" + index;
+        playUrl.value = "https://stream.juice.com.hr/stream/" + index;
+        playOn.value = true;
       }
       if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 403) {
         alert("Sorry you are not authorized to watch this stream");
       }
     }
+  }
 
+  function playPause() {
+    if (playOn.value) {
+      audioRef.value.pause();
+      playOn.value = false;
+    }
+    else {
+      audioRef.value.play();
+      playOn.value = true;
+    }
+  }
+  function playNext() {
+    if (repeatOn.value) {
+      playUrl.value = "";
+      play(active_index.value, tracks.value[active_index.value]);
+    }
+    else if (shuffleOn.value) {
+      const randomIndex = Math.floor(Math.random() * tracks.value.length);
+      play(randomIndex, tracks.value[randomIndex]);
+    }
+    else if (active_index.value !== tracks.value.length - 1)
+      play(active_index.value + 1, tracks.value[active_index.value + 1]);
+  }
+  function playPrevious() {
+    if (repeatOn.value) {
+      playUrl.value = "";
+      play(active_index.value, tracks.value[active_index.value]);
+    }
+    else if (shuffleOn.value) {
+      const randomIndex = Math.floor(Math.random() * tracks.value.length);
+      play(randomIndex, tracks.value[randomIndex]);
+    }
+    else if (active_index.value !== 0) 
+      play(active_index.value - 1, tracks.value[active_index.value - 1]);
+  }
+  function next() {
+    if (repeatOn.value) {
+      playUrl.value = "";
+      play(active_index.value, tracks.value[active_index.value]);
+    }
+    else if (shuffleOn.value) {
+      const randomIndex = Math.floor(Math.random() * tracks.value.length);
+      play(randomIndex, tracks.value[randomIndex]);
+    }
+    else {
+      if (active_index.value !== tracks.value.length - 1) 
+        play(active_index.value + 1, tracks.value[active_index.value + 1]);
+    }
   }
 
   function transformAddress(address) {
