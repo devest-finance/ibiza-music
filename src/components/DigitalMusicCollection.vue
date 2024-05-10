@@ -454,6 +454,13 @@
     try {
       await contractInstance.value.methods.purchase(ticketID.value).send({from: connectedAccount.value, value: ticketPrice});
       purchased.value = true;
+
+      totalAvailable.value = await contractInstance.value.methods.totalSupply().call();
+      totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
+      myBalance.value = Number(await web3.value.eth.getBalance(accounts[0]));
+      myBalance.value = myBalance.value / Math.pow(10, 18);
+      myTicketBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
+
     } catch (error) {
       console.log(error);
     }
@@ -461,6 +468,7 @@
   
   function play(index, track) {
     debugger;
+    console.log(myTicketBalance.value);
     tracks.value[active_index.value].active = false;
     track.active = true;
     active_index.value = index;
