@@ -2,13 +2,16 @@
     <div v-if="firstPage" class="container">
       <div class="content">
         <div class="title">
-          <p>Digital Music Collection</p>
+          <div class="logo">
+            <img src="../assets/images/streaming/clubmixedLogo.svg"/>
+            <p>NFT Music Collection</p>
+          </div>
           <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
           <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
           <div v-if="isConnected && isNetwork" class="connected">
             <div class="wallet_info">
               <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
-              <p><strong>Balance: </strong> {{myBalance.toFixed(5)}} {{ network.nativeCurrency.symbol }}</p>
+              <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
             </div>
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </div>
@@ -84,13 +87,17 @@
     <div v-if="secondPage" class="container">
       <div class="content">
         <div class="title">
-          <p><span @click="changePage()"><</span>Digital Music Collection</p>
+          <div class="logo">
+            <p @click="changePage()"><</p>
+            <img src="../assets/images/streaming/clubmixedLogo.svg"/>
+            <p>NFT Music Collection</p>
+          </div>
           <button v-if="!isConnected" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
           <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
           <div v-if="isConnected && isNetwork" class="connected">
             <div class="wallet_info">
                 <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
-                <p><strong>Balance: </strong> {{myBalance.toFixed(5)}} {{ network.nativeCurrency.symbol }}</p>
+                <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
             </div>
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </div>
@@ -525,6 +532,8 @@
   }
 
   function playPause() {
+    if (active_index.value === null)
+      play(0, tracks.value[0]);
     if (playOn.value) {
       audioRef.value.pause();
       playOn.value = false;
