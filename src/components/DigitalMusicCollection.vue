@@ -116,7 +116,7 @@
             <div class="player_controls">
               <i :class="{'fa-solid': true, 'fa-shuffle': true, 'icon_on': shuffleOn, 'icon_off': !shuffleOn}" @click="shuffle()"></i>
               <i class="fa-solid fa-backward icon_off" @click="playPrevious()"></i>
-              <i :class="{'fa-solid': true, 'fa-pause': playOn, 'fa-play': !playOn, 'icon_off': true}" @click="playPause()"></i>
+              <i :class="{'fa-solid': true, 'fa-pause': playOn, 'fa-play': !playOn, 'icon_off': true, 'icon_primary': true}" @click="playPause()"></i>
               <i class="fa-solid fa-forward icon_off" @click="playNext()"></i>
               <i :class="{'fa-solid': true, 'fa-repeat': true, 'icon_on': repeatOn, 'icon_off': !repeatOn}" @click="repeat()"></i>
             </div>
@@ -148,7 +148,10 @@
             </div>
             <p><strong>Release Date: </strong>25 NOV 2016</p>
             <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
-            <div class="progress_bar"><strong>Available:</strong> {{ totalAvailable - totalPurchased }}/{{ totalAvailable }}</div>
+            <div class="progress_bar">
+              <div id="fill" class="progress" :style="{ width: (totalAvailable - totalPurchased) + '%' }">
+                <strong>Available:</strong> {{ totalAvailable - totalPurchased }}/{{ totalAvailable }}</div>
+              </div>
             <div class="product_action_row">
               <button class="first_button" @click="purchase()" :disabled="myTicketBalance">Buy</button>
               <button class="third_button" @click="sell()">Sell</button>
@@ -252,9 +255,6 @@
   function repeat() {
     repeatOn.value = !repeatOn.value;
   }
-  function playIcon() {
-    playOn.value = !playOn.value;
-  }
 
   async function loadTracks() {
       tracks.value = [{
@@ -341,7 +341,6 @@
       "Your authentication status will reset after 24 hours.\n" +
       "Wallet address:\n" + address[0].toLowerCase();
   }
-  
   
   async function checkIfConnected() {
     isConnected.value = false;
