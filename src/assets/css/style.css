@@ -20,19 +20,20 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 30px 50px 30px;
+    margin: 25px 30px 25px 30px;
   }
   .logo {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
   }
   .title img {
     height: 80px;
   }
   .title p {
     color: white;
-    font-size: 48px;
-    margin: 20px 20px 0px 20px;
+    font-size: 40px;
+    font-weight: 100;
+    margin: 20px;
   }
   .title span {
     padding-right: 50px;
@@ -242,13 +243,24 @@
     font-weight: 600;
   }
   .info .title_info {
-    margin: 0 15px
+    margin: 0 15px;
+    display: flex;
+    justify-content: space-between;
   }
   .info .title_info p {
     margin: 0;
     text-transform: uppercase;
     font-size: 16px;
     line-height: 20px;
+  }
+  .socials {
+    font-size: 36px;
+  }
+  .socials i {
+    margin-left: 20px;
+  }
+  .socials a {
+    color: white;
   }
   .tracks {
 
@@ -386,5 +398,4 @@
   .audio_player input {
     width: 300px;
     margin: 30px 10px 0px 10px;
-    color: red;
   }

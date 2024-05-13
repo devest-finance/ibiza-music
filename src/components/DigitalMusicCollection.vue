@@ -16,7 +16,7 @@
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </div>
         </div>
-        <div class="cards_row">
+        <div class="cards_row" v-if="network && price">
           <div class="card">
             <div class="img_row">
               <img src="../assets/images/streaming/LennyIbizzare.png">
@@ -25,12 +25,12 @@
               <h1>Deep Tech Sizzle</h1>
               <p>Lenny Ibizzare</p>
               <p>Released: 25 Nov 2016</p>
-              <h1>9,99$</h1>
+              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
+              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
             </div>
             <div class="action_row">
               <button class="first_button" @click="changePage()">Play</button>
               <button class="second_button" @click="changePage()">Buy</button>
-              <button class="third_button"  @click="changePage()">Sell</button>
             </div>
           </div>
           <div class="card">
@@ -41,12 +41,12 @@
               <h1>Deep Tech Sizzle</h1>
               <p>Lenny Ibizzare</p>
               <p>Released: 25 Nov 2016</p>
-              <h1>9,99$</h1>
+              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
+              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
             </div>
             <div class="action_row">
               <button class="first_button" @click="changePage()">Play</button>
               <button class="second_button" @click="changePage()">Buy</button>
-              <button class="third_button"  @click="changePage()">Sell</button>
             </div>
           </div>
           <div class="card">
@@ -57,12 +57,12 @@
               <h1>Deep Tech Sizzle</h1>
               <p>Lenny Ibizzare</p>
               <p>Released: 25 Nov 2016</p>
-              <h1>9,99$</h1>
+              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
+              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
             </div>
             <div class="action_row">
               <button class="first_button" @click="changePage()">Play</button>
               <button class="second_button" @click="changePage()">Buy</button>
-              <button class="third_button"  @click="changePage()">Sell</button>
             </div>
           </div>
           <div class="card">
@@ -73,12 +73,12 @@
               <h1>Deep Tech Sizzle</h1>
               <p>Lenny Ibizzare</p>
               <p>Released: 25 Nov 2016</p>
-              <h1>9,99$</h1>
+              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
+              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
             </div>
             <div class="action_row">
               <button class="first_button" @click="changePage()">Play</button>
               <button class="second_button" @click="changePage()">Buy</button>
-              <button class="third_button"  @click="changePage()">Sell</button>
             </div>
           </div>
         </div>
@@ -88,8 +88,7 @@
       <div class="content">
         <div class="title">
           <div class="logo">
-            <p @click="changePage()"><</p>
-            <img src="../assets/images/streaming/clubmixedLogo.svg"/>
+            <img @click="changePage" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
             <p>NFT Music Collection</p>
           </div>
           <button v-if="!isConnected" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
@@ -127,8 +126,15 @@
               <h1>{{ price }} {{ network.nativeCurrency.symbol }}</h1>
             </div>
             <div class="title_info">
-              <p><strong>Artist: </strong>Lenny Ibizzare</p>
-              <p><strong>Genre: </strong>Ambient, Electronic</p>
+              <div>
+                <p><strong>Artist: </strong>Lenny Ibizzare</p>
+                <p><strong>Genre: </strong>Ambient, Electronic</p>
+              </div>
+              <div class="socials">
+                <a href="https://www.facebook.com/lennyibizarreofficial/"><i class="fa-brands fa-facebook"></i></a> 
+                <a href="https://www.instagram.com/lennyibizarre/"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
+              </div>
             </div>
             <div class="tracks">
               <div v-if="tracks.length" class="track_list">
@@ -147,9 +153,9 @@
               </div>
             </div>
             <p><strong>Release Date: </strong>25 NOV 2016</p>
-            <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
+            <p style="margin-bottom: 40px;">Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
             <div class="progress_bar">
-              <div id="fill" class="progress" :style="{ width: (totalAvailable - totalPurchased) + '%' }">
+              <div id="fill" class="progress" :style="{ width: percentage + '%' }">
                 <strong>Available:</strong> {{ totalAvailable - totalPurchased }}/{{ totalAvailable }}</div>
               </div>
             <div class="product_action_row">
@@ -184,8 +190,10 @@
   let totalAvailable = ref(0n);
   let totalPurchased = ref(0n);
   let price = ref(0);
+  let tokenPrice = ref(0);
   let myTicketBalance = ref(0n);
   let myBalance = ref(0);
+  let percentage = ref(0);
   let ticketID = ref("");
   let playUrl = ref("");
   
@@ -212,10 +220,17 @@
     web3.value = new Web3(window.ethereum);
     contractInstance.value = await new web3.value.eth.Contract(contract.value.abi, product.value.address);
     totalAvailable.value = await contractInstance.value.methods.totalSupply().call();
+    totalAvailable.value = Number(totalAvailable.value);
     totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
+    totalPurchased.value = Number(totalPurchased.value);
+
+    percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
   
     await checkIfConnected();
     await loadTracks();
+
+    await getPrice();
+    await fetchTokenPrice();
   });
     
   
@@ -233,7 +248,28 @@
       window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
     }
   });
-  
+
+  async function getPrice() {
+    const response = await devest.request("data/get", [
+      product.value._id,
+      "price", {}]);
+    price.value = (((1 / Math.pow(10, network.value.nativeCurrency.decimals))) * response);
+  }
+  async function fetchTokenPrice() {
+      if (!network.value.apiId) {
+        console.log("Price in USD not available for this token");
+        return;
+      } 
+      const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${network.value.apiId}&vs_currencies=USD`;
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        tokenPrice.value = data[network.value.apiId].usd;  // Set the token price from API
+      } catch (error) {
+        console.error('Error fetching token price:', error);
+        tokenPrice.value = 'Error';  // Handle errors gracefully
+      }
+    }
   async function changePage() {
     if (!isConnected.value)
       await connectWallet();
@@ -241,13 +277,6 @@
       await switchNetwork(product.value.network);
     firstPage.value = !firstPage.value;
     secondPage.value = !secondPage.value;
-
-    if (secondPage.value) {
-      const response = await devest.request("data/get", [
-      product.value._id,
-      "price", {}]);
-    price.value = (((1 / Math.pow(10, network.value.nativeCurrency.decimals))) * response);
-    }
   }
   function shuffle() {
     shuffleOn.value = !shuffleOn.value;
