@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="cards_row" v-if="network && price">
-          <div class="card">
+          <div @click="changePage()" class="card" v-for="index in cards">
             <div class="img_row">
               <img src="../assets/images/streaming/LennyIbizzare.png">
             </div>
@@ -27,58 +27,6 @@
               <p>Released: 25 Nov 2016</p>
               <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
               <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
-            </div>
-            <div class="action_row">
-              <button class="first_button" @click="changePage()">Play</button>
-              <button class="second_button" @click="changePage()">Buy</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="img_row">
-              <img src="../assets/images/streaming/LennyIbizzare.png">
-            </div>
-            <div class="info_row">
-              <h1>Deep Tech Sizzle</h1>
-              <p>Lenny Ibizzare</p>
-              <p>Released: 25 Nov 2016</p>
-              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
-              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
-            </div>
-            <div class="action_row">
-              <button class="first_button" @click="changePage()">Play</button>
-              <button class="second_button" @click="changePage()">Buy</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="img_row">
-              <img src="../assets/images/streaming/LennyIbizzare.png">
-            </div>
-            <div class="info_row">
-              <h1>Deep Tech Sizzle</h1>
-              <p>Lenny Ibizzare</p>
-              <p>Released: 25 Nov 2016</p>
-              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
-              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
-            </div>
-            <div class="action_row">
-              <button class="first_button" @click="changePage()">Play</button>
-              <button class="second_button" @click="changePage()">Buy</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="img_row">
-              <img src="../assets/images/streaming/LennyIbizzare.png">
-            </div>
-            <div class="info_row">
-              <h1>Deep Tech Sizzle</h1>
-              <p>Lenny Ibizzare</p>
-              <p>Released: 25 Nov 2016</p>
-              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
-              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
-            </div>
-            <div class="action_row">
-              <button class="first_button" @click="changePage()">Play</button>
-              <button class="second_button" @click="changePage()">Buy</button>
             </div>
           </div>
         </div>
@@ -177,6 +125,8 @@
   const props = defineProps({
     product_id: String,
   });
+
+  const cards = Array.from({ length: 150 }, (_, i) => i + 1);
   
   const isConnected = ref(false);
   const isNetwork = ref(false);
@@ -264,10 +214,10 @@
       try {
         const response = await fetch(apiUrl);
         const data = await response.json();
-        tokenPrice.value = data[network.value.apiId].usd;  // Set the token price from API
+        tokenPrice.value = data[network.value.apiId].usd;
       } catch (error) {
         console.error('Error fetching token price:', error);
-        tokenPrice.value = 'Error';  // Handle errors gracefully
+        tokenPrice.value = 'Error';
       }
     }
   async function changePage() {
