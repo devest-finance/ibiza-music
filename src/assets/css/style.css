@@ -11,8 +11,8 @@
   }
   .content {
     backdrop-filter: blur(10px);
-    height: 90vh;
-    width: 90vw;
+    height: 95vh;
+    width: 95vw;
     background-color: #005AFF33;
     border-radius: 12px;
   }
@@ -25,6 +25,8 @@
   .title p {
     color: white;
     font-size: 48px;
+    margin-block-start: 1vh;
+    margin-block-end: 1vh;
   }
   .title span {
     padding-right: 50px;
@@ -75,7 +77,7 @@
   .cards_row {
     display: flex;
     justify-content: space-between;
-    margin: 100px 30px;
+    margin: 5vh 30px;
   }
   .card {
     display: grid;
@@ -156,10 +158,13 @@
     display: flex;
     justify-content: center;
     margin: 30px;
+    margin-top: 1vh;
     gap: 25px
   }
   .player {
-    width: 450px;
+    width: 20vw;
+    min-width: 450px;
+    max-width: 650px;
     height: 620px;
     border-radius: 8px;
     background-color: #5C4AB699;
@@ -179,7 +184,7 @@
     border-radius: 8px;
   }
   .info {
-    width: 650px;
+    /*width: 650px;*/
     height: 620px;
     border-radius: 8px;
     background-color: #5C4AB699;
@@ -248,7 +253,7 @@
   .track_list {
     height: 250px;
     overflow: auto;
-    margin: 40px 10px 0px 10px;
+    margin: 20px 10px 0px 10px;
   }
   .track_list::-webkit-scrollbar {
     width: 10px;
