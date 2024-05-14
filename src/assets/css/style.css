@@ -35,6 +35,18 @@
     font-weight: 100;
     margin: 20px;
   }
+  .wallet {
+    display: flex;
+    align-items: center;
+  }
+  .terms a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+  }
+  .terms a:hover {
+    color: #ec0868;
+  }
   .title span {
     padding-right: 50px;
     cursor: pointer;
@@ -425,6 +437,11 @@
       grid-template-columns: repeat(3, 1fr);
     }
   }
+  @media (max-width: 1186px) {
+    .title {
+      display: block;
+    }
+  }
   @media (max-width: 1100px) {
     .product_row {
       display: block;
@@ -485,9 +502,6 @@
     .title {
       display: block;
     }
-    .connected {
-      margin-top: 15px;
-    }
     .wallet {
       display: flex;
       justify-content: center;
@@ -521,6 +535,10 @@
     }
     .price_right {
       text-align: right;
+    }
+    .terms {
+      display: grid;
+      text-align: center;
     }
   }
   @media (max-width: 494px) {

@@ -7,6 +7,10 @@
             <p>NFT Music Collection</p>
           </div>
           <div class="wallet">
+            <div class="terms">
+              <a href="termsandconditions">Terms and Conditions</a>
+              <a href="privacypolicy">Privacy Policy</a>
+            </div>
             <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
             <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
             <div v-if="isConnected && isNetwork" class="connected">
@@ -42,12 +46,16 @@
             <p>NFT Music Collection</p>
           </div>
           <div class="wallet">
-            <button v-if="!isConnected" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
+            <div class="terms">
+              <a href="termsandconditions">Terms and Conditions</a>
+              <a href="privacypolicy">Privacy Policy</a>
+            </div>
+            <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
             <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
             <div v-if="isConnected && isNetwork" class="connected">
               <div class="wallet_info">
-                  <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
-                  <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
+                <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
+                <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
               </div>
               <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
