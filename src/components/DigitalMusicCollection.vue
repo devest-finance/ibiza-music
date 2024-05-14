@@ -6,14 +6,16 @@
             <img src="../assets/images/streaming/clubmixedLogo.svg"/>
             <p>NFT Music Collection</p>
           </div>
-          <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
-          <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
-          <div v-if="isConnected && isNetwork" class="connected">
-            <div class="wallet_info">
-              <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
-              <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
+          <div class="wallet">
+            <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
+            <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
+            <div v-if="isConnected && isNetwork" class="connected">
+              <div class="wallet_info">
+                <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
+                <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
+              </div>
+              <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
-            <i class="fa-solid fa-ellipsis-vertical"></i>
           </div>
         </div>
         <div class="cards_row" v-if="network && price">
@@ -25,8 +27,8 @@
               <h1>{{ card.title }}</h1>
               <p>{{ card.artist }}</p>
               <p>{{  card.released }}</p>
-              <h1>{{card.price}} {{ network.nativeCurrency.symbol }}</h1>
-              <p style="margin: 0">({{(tokenPrice * card.price).toFixed(2) + ' $'}})</p>
+              <h1 v-if="card.price">{{card.price}} {{ network.nativeCurrency.symbol }}</h1>
+              <p v-if="card.price" style="margin: 0">({{(tokenPrice * card.price).toFixed(2) + ' $'}})</p>
             </div>
           </div>
         </div>
@@ -39,14 +41,16 @@
             <img @click="changePage" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
             <p>NFT Music Collection</p>
           </div>
-          <button v-if="!isConnected" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
-          <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
-          <div v-if="isConnected && isNetwork" class="connected">
-            <div class="wallet_info">
-                <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
-                <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
+          <div class="wallet">
+            <button v-if="!isConnected" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
+            <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
+            <div v-if="isConnected && isNetwork" class="connected">
+              <div class="wallet_info">
+                  <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
+                  <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
+              </div>
+              <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
-            <i class="fa-solid fa-ellipsis-vertical"></i>
           </div>
         </div>
         <div class="product_row">
@@ -71,7 +75,7 @@
           <div class="info">
             <div class="title">
               <h1>DEEP TECH SIZZLE</h1>
-              <h1>{{ price }} {{ network.nativeCurrency.symbol }}</h1>
+              <h1 class="price_right">{{ price }} {{ network.nativeCurrency.symbol }}</h1>
             </div>
             <div class="title_info">
               <div>
@@ -126,7 +130,7 @@
     product_id: String,
   });
 
-  const cards = Array.from({ length: 10 }, (_, i) => i + 1);
+  const cards = Array.from({ length: 15 }, (_, i) => i + 1);
 
   import imageUrl from '@/assets/images/streaming/LennyIbizzare.png';
   import comingSoon from '@/assets/images/streaming/coming.jpg';
@@ -135,7 +139,7 @@
     image: imageUrl,
     title: "DEEP TECH SIZZLE",
     artist: "LENNY IBIZZARE",
-    released: "15 MAI 2024",
+    released: "15 MAY 2024",
     price: 15.00,
     link: true,
   }
@@ -143,7 +147,7 @@
     cards[i] = {
       image: comingSoon,
       title: "Coming Soon",
-      artist: "Club Mixed",
+      artist: "ClubMixed",
       released: "",
       price: "",
       link: false
@@ -492,7 +496,7 @@
   }
   
   async function purchase() {
-    ticketID.value = (totalPurchased.value + 1n).toString();
+    ticketID.value = (totalPurchased.value + 1).toString();
     const ticketPrice = web3.value.utils.toWei("1", "ether");
   
     try {
@@ -598,7 +602,7 @@
   }
 
   function transformAddress(address) {
-    return address.slice(0, 5) + "..." + address.slice(address.length - 3)
+    return address.slice(0, 3) + "..." + address.slice(address.length - 3)
   }
   
   function copyAccountAddress() {

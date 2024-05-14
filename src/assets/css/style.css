@@ -109,7 +109,7 @@
     border-radius: 8px;
     background-color: #5C4AB699;
     border: 1px solid rgba(250, 250, 250, 0.39);
-    margin-bottom: 30px;
+    margin-top: 30px;
     opacity: 0.5;
   }
   .card.active {
@@ -119,6 +119,9 @@
   .card.active:hover{
     backdrop-filter: blur();
     box-shadow: 0px 4px 30px 0px rgba(105, 105, 184, 0.5);
+  }
+  .card.active:hover img{
+    transform: scale(1.02);
   }
   .img_row{
     display: flex;
@@ -196,7 +199,7 @@
     border-radius: 8px;
   }
   .info {
-    height: 80vh;
+    height: 75vh;
     border-radius: 8px;
     background-color: #5C4AB699;
     border: 1px solid rgba(250, 250, 250, 0.39);
@@ -280,7 +283,7 @@
     font-weight: 500;
   }
   .track_list {
-    height: 45vh;
+    height: 43vh;
     overflow: auto;
     margin: 20px 10px 0px 10px;
   }
@@ -406,4 +409,131 @@
   .audio_player input {
     width: 300px;
     margin: 30px 10px 0px 10px;
+  }
+  @media (max-width: 1700px) {
+    .cards_row {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (max-width: 1490px) {
+    .track_list {
+      height: 40vh;
+    }
+  }
+  @media (max-width: 1400px) {
+    .cards_row {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (max-width: 1100px) {
+    .product_row {
+      display: block;
+      gap: 15px;
+    }
+    .player {
+      display: block;
+      max-width: 100%;
+      min-width: 0%;
+      width: 100%;
+      height: 10vh;
+    }
+    .info {
+      width: 100%;
+    }
+    .player img {
+      display: none
+    }
+    .audio_player {
+      padding-top: 0;
+    }
+    .audio_player input {
+      width: 63%;
+      margin: -15px 0 0 0;
+    }
+    .audio_player p {
+      margin: -15px 15px 0 15px;
+    }
+    .track_list {
+      height: 32vh;
+    
+    }
+    .info {
+      height: 65vh;
+    }
+  }
+  @media (max-width: 1050px) {
+    .cards_row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 855px) {
+    .cards_row {
+      height: 71vh;
+    }
+    .info {
+      height: 61vh;
+    }
+    .track_list {
+      height: 27vh;
+    }
+  }
+  @media (max-width: 750px) {
+    .cards_row {
+      grid-template-columns: repeat(1, 1fr);
+      height: 70vh;
+    }
+    .title {
+      display: block;
+    }
+    .connected {
+      margin-top: 15px;
+    }
+    .wallet {
+      display: flex;
+      justify-content: center;
+    }
+    .info {
+      height: 60vh;
+    }
+    .track_list {
+      height: 26vh;
+    }
+  }
+  @media (max-width: 703px) {
+    .track_list {
+      height: 24vh;
+  }
+}
+  @media (max-width: 653px) {
+    .cards_row {
+      height: 66vh;
+    }
+    .info {
+      height: 56vh;
+    }
+    .track_list {
+      height: 20vh;
+    }
+  }
+  @media (max-width: 594px) {
+    .track_list {
+      height: 15vh;
+    }
+    .price_right {
+      text-align: right;
+    }
+  }
+  @media (max-width: 494px) {
+    .track_list {
+      height: 13vh;
+    
+    }
+    .socials i {
+      margin-left: 5px;
+    }
+  }
+  @media (max-width: 456px) {
+    .cards_row {
+      height: 62vh;
+    }
   }
