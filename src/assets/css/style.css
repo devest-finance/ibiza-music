@@ -1,5 +1,5 @@
   .container {
-    font-family: '', sans-serif;
+    font-family: 'Nunito', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -112,6 +112,10 @@
   .cards_row::-webkit-scrollbar-thumb {
     background: rgb(235, 221, 252); 
     border-radius: 10px;
+  }
+  .item1 {
+    grid-column: span 2; /* This makes item1 span 2 columns */
+    width: 100% !important;
   }
   .card {
     display: grid;

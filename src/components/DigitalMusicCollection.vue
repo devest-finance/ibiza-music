@@ -4,7 +4,9 @@
         <div class="title">
           <div class="logo">
             <img src="../assets/images/streaming/clubmixedLogo.svg"/>
-            <p>NFT Music Collection</p>
+            <h1>NFT Music Collection
+              <small>Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</small>
+            </h1>
           </div>
           <div class="wallet">
             <div class="terms">
@@ -22,7 +24,48 @@
             </div>
           </div>
         </div>
+        <div style="margin: 0 30px; color: white !important;text-align: justify;">
+          Dive into the revolutionary realm of NFTs at
+          Clubmixed, where you can not only listen to but truly own exclusive DJ
+          mixes. From ambient beats to heart-thumping electronic tracks, secure your
+          piece of music history with our blockchain-powered releases. <br/>
+
+          <b>Limited Edition Releases:</b> Capture a moment in music history with limited
+          edition NFTs. Each DJ mix album comes in both audio and video formats and is
+          available only in a restricted number of copies. Secure your unique piece
+          before they're all gone!
+          See Your Investment Grow: Engage with music in a way never before possible.
+          Watch the value of your NFTs increase as the artist's popularity and
+          historical significance grow. A sound investment, literally and
+          figuratively!
+          Rare Collectibles: Enhance your collection with more than just digital
+          assets. Each NFT comes with an exclusive print booklet and a certificate of
+          authenticity, making it a perfect addition to any music aficionado's
+          collection.
+        </div>
         <div class="cards_row" v-if="network && price">
+          <div @click="changePage(card.link)" class="card" >
+            Buy, Sell, and Trade on Your Terms: Through our secure, user-friendly
+            platform, manage your NFT holdings with ease. Buy new releases, sell them as
+            their value rises, or trade with other fans across the globe. All
+            transactions are secure, transparent, and immutable, thanks to blockchain
+            technology.
+            Join the NFT Revolution at Clubmixed: Be part of a community that moves and
+            grooves differently. At NFT.clubmixed, we're not just changing how music is
+            consumed; we're revolutionizing ownership and support for artists worldwide.
+            Sign up today and be the first to get access to the beats of tomorrow!
+          </div>
+          <div @click="changePage(card.link)" class="card" >
+            Exclusive Ownership: Say goodbye to the transient nature of streaming
+            platforms. With NFT.clubmixed, you're not just listening to tracks; you're
+            investing in them. Each NFT purchase grants you an exclusive ownership
+            certificate of your favorite DJ's latest mix album - a claim that's yours
+            alone, fully verifiable and recorded on the blockchain.
+            Support & Invest in the Artists You Love: Each NFT sale directly benefits
+            the DJs and producers you admire, giving them the freedom to innovate
+            without constraints. Your purchase helps sustain their creative journey,
+            ensuring that the music never stops.<br>
+          </div>
           <div @click="changePage(card.link)" class="card" v-for="card of cards" v-bind:class="{ 'active' : card.link }">
             <div class="img_row">
               <img :src="card.image">
