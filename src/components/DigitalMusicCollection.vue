@@ -17,16 +17,16 @@
           </div>
         </div>
         <div class="cards_row" v-if="network && price">
-          <div @click="changePage()" class="card" v-for="index in cards">
+          <div @click="changePage(card.link)" class="card" v-for="card of cards" v-bind:class="{ 'active' : card.link }">
             <div class="img_row">
-              <img src="../assets/images/streaming/LennyIbizzare.png">
+              <img :src="card.image">
             </div>
             <div class="info_row">
-              <h1>Deep Tech Sizzle</h1>
-              <p>Lenny Ibizzare</p>
-              <p>Released: 25 Nov 2016</p>
-              <h1>{{price}} {{ network.nativeCurrency.symbol }}</h1>
-              <p style="margin: 0">({{(tokenPrice * price).toFixed(2) + ' $'}})</p>
+              <h1>{{ card.title }}</h1>
+              <p>{{ card.artist }}</p>
+              <p>{{  card.released }}</p>
+              <h1>{{card.price}} {{ network.nativeCurrency.symbol }}</h1>
+              <p style="margin: 0">({{(tokenPrice * card.price).toFixed(2) + ' $'}})</p>
             </div>
           </div>
         </div>
@@ -126,7 +126,30 @@
     product_id: String,
   });
 
-  const cards = Array.from({ length: 150 }, (_, i) => i + 1);
+  const cards = Array.from({ length: 10 }, (_, i) => i + 1);
+
+  import imageUrl from '@/assets/images/streaming/LennyIbizzare.png';
+  import comingSoon from '@/assets/images/streaming/coming.jpg';
+
+  cards[0] = {
+    image: imageUrl,
+    title: "DEEP TECH SIZZLE",
+    artist: "LENNY IBIZZARE",
+    released: "15 MAI 2024",
+    price: 15.00,
+    link: true,
+  }
+  for(let i = 1; i < cards.length; i++) {
+    cards[i] = {
+      image: comingSoon,
+      title: "Coming Soon",
+      artist: "Club Mixed",
+      released: "",
+      price: "",
+      link: false
+    };
+  }
+
   
   const isConnected = ref(false);
   const isNetwork = ref(false);
@@ -166,16 +189,18 @@
   
   onBeforeMount(async () => {
     await getData();
-  
-    web3.value = new Web3(window.ethereum);
-    contractInstance.value = await new web3.value.eth.Contract(contract.value.abi, product.value.address);
-    totalAvailable.value = await contractInstance.value.methods.totalSupply().call();
-    totalAvailable.value = Number(totalAvailable.value);
-    totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
-    totalPurchased.value = Number(totalPurchased.value);
 
-    percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
-  
+    if (window.ethereum) {
+      web3.value = new Web3(window.ethereum);
+      contractInstance.value = await new web3.value.eth.Contract(contract.value.abi, product.value.address);
+      totalAvailable.value = await contractInstance.value.methods.totalSupply().call();
+      totalAvailable.value = Number(totalAvailable.value);
+      totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
+      totalPurchased.value = Number(totalPurchased.value);
+
+      percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+    }
+
     await checkIfConnected();
     await loadTracks();
 
@@ -185,6 +210,16 @@
     
   
   onMounted(() => {
+    window.addEventListener('popstate', event => {
+      event.preventDefault(); // Prevent the navigation
+      firstPage.value = !firstPage.value;
+      secondPage.value = !secondPage.value;
+    });
+    window.onhashchange = function(event) {
+      event.preventDefault(); // Prevent the navigation
+      firstPage.value = !firstPage.value;
+      secondPage.value = !secondPage.value;
+    }
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", handleAccountsChanged);
     }
@@ -220,13 +255,15 @@
         tokenPrice.value = 'Error';
       }
     }
-  async function changePage() {
+  async function changePage(doit) {
+    if (!doit) return;
     if (!isConnected.value)
       await connectWallet();
     if (!isNetwork.value)
       await switchNetwork(product.value.network);
     firstPage.value = !firstPage.value;
     secondPage.value = !secondPage.value;
+    history.pushState(null, null, window.location.pathname);
   }
   function shuffle() {
     shuffleOn.value = !shuffleOn.value;
