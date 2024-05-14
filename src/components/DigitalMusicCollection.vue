@@ -4,8 +4,8 @@
         <div class="title">
           <div class="logo">
             <img src="../assets/images/streaming/clubmixedLogo.svg"/>
-            <h1>NFT Music Collection
-              <small>Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</small>
+            <h1>NFT ClubMixed
+              <!--<small>Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</small>-->
             </h1>
           </div>
           <div class="wallet">
@@ -20,7 +20,6 @@
                 <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
                 <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
               </div>
-              <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
           </div>
         </div>
@@ -82,11 +81,11 @@
       </div>
     </div>
     <div v-if="secondPage" class="container">
-      <div class="content">
+      <div class="content" style="overflow: hidden;">
         <div class="title">
           <div class="logo">
             <img @click="changePage" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
-            <p>NFT Music Collection</p>
+            <h1>NFT Clubmixed</h1>
           </div>
           <div class="wallet">
             <div class="terms">
@@ -100,7 +99,6 @@
                 <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()" class="fa-regular fa-copy"></i></p>
                 <p><strong>Balance: </strong> {{myBalance.toFixed(2)}} {{ network.nativeCurrency.symbol }}</p>
               </div>
-              <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
           </div>
         </div>
@@ -124,39 +122,40 @@
             </div>
           </div>
           <div class="info">
-            <div class="title">
-              <h1>DEEP TECH SIZZLE</h1>
-              <h1 class="price_right">{{ price }} {{ network.nativeCurrency.symbol }}</h1>
-            </div>
-            <div class="title_info">
-              <div>
-                <p><strong>Artist: </strong>Lenny Ibizzare</p>
-                <p><strong>Genre: </strong>Ambient, Electronic</p>
+            <div class="track_info">
+              <div class="title">
+                <h1>DEEP TECH SIZZLE</h1>
+                <h1 class="price_right">{{ price }} {{ network.nativeCurrency.symbol }}</h1>
               </div>
-              <div class="socials">
-                <a href="https://www.facebook.com/lennyibizarreofficial/"><i class="fa-brands fa-facebook"></i></a> 
-                <a href="https://www.instagram.com/lennyibizarre/"><i class="fa-brands fa-instagram"></i></a>
-                <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
+              <div class="title_info">
+                <div>
+                  <p><strong>Artist: </strong>Lenny Ibizzare</p>
+                  <p><strong>Genre: </strong>Ambient, Electronic</p>
+                </div>
+                <div class="socials">
+                  <a href="https://www.facebook.com/lennyibizarreofficial/"><i class="fa-brands fa-facebook"></i></a> 
+                  <a href="https://www.instagram.com/lennyibizarre/"><i class="fa-brands fa-instagram"></i></a>
+                  <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
               </div>
-            </div>
-            <div class="tracks">
-              <div v-if="tracks.length" class="track_list">
-                <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }" @click="play(index, track)">
-                  <i class="fa-solid fa-bars"></i>
-                  <img src="../assets/images/streaming/LennyIbizzare.png"></img>
-                  <div class="track_name">
-                    <h4>{{ track.name }}</h4>
-                    <p>Lenny Ibizarre</p>
-                  </div>
-                  <div class="duration">
-                    <h4>{{track.duration}}</h4>
-                    <p>2024</p>
+              <div class="tracks">
+                <div v-if="tracks.length" class="track_list">
+                  <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }" @click="play(index, track)">
+                    <img src="../assets/images/streaming/LennyIbizzare.png"></img>
+                    <div class="track_name">
+                      <h4>{{ track.name }}</h4>
+                      <p>Lenny Ibizarre</p>
+                    </div>
+                    <div class="duration">
+                      <h4>{{track.duration}}</h4>
+                      <p>2024</p>
+                    </div>
                   </div>
                 </div>
               </div>
+              <p><strong>Release Date: </strong>25 NOV 2016</p>
+              <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
             </div>
-            <p><strong>Release Date: </strong>25 NOV 2016</p>
-            <p style="margin-bottom: 40px;">Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
             <div class="progress_bar">
               <div id="fill" class="progress" :style="{ width: percentage + '%' }">
                 <strong>Available:</strong> {{ totalAvailable - totalPurchased }}/{{ totalAvailable }}</div>
