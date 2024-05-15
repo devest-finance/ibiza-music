@@ -150,7 +150,7 @@
       </div>
     </div>
   </template>
-  
+
   <script setup>
   import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
   import { Devest } from "../assets/js/devest-app"
@@ -226,17 +226,23 @@
     await getData();
 
     if (window.ethereum) {
-      web3.value = new Web3(window.ethereum);
-      contractInstance.value = await new web3.value.eth.Contract(contract.value.abi, product.value.address);
-      totalAvailable.value = await contractInstance.value.methods.totalSupply().call();
-      totalAvailable.value = Number(totalAvailable.value);
-      totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
-      totalPurchased.value = Number(totalPurchased.value);
+      // connection was already established
+      if (localStorage.getItem("devest-wallet")){
+        await checkIfConnected();
+      }
 
-      percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+      try {
+        web3.value = new Web3(window.ethereum);
+        contractInstance.value = await new web3.value.eth.Contract(contract.value.abi, product.value.address);
+        totalAvailable.value = await contractInstance.value.methods.totalSupply().call();
+        totalAvailable.value = Number(totalAvailable.value);
+        totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
+        totalPurchased.value = Number(totalPurchased.value);
+
+        percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+      } catch (excpetion) {}
     }
 
-    await checkIfConnected();
     await loadTracks();
 
     await getPrice();
@@ -292,12 +298,6 @@
     }
   async function changePage(doit) {
     if (!doit) return;
-    if (!isConnected.value)
-      await connectWallet();
-    if (!isNetwork.value)
-      await switchNetwork(product.value.network);
-    if (firstPage.value)
-      await checkIfConnected();
     firstPage.value = !firstPage.value;
     secondPage.value = !secondPage.value;
     history.pushState(null, null, window.location.pathname);
@@ -646,4 +646,3 @@
     navigator.clipboard.writeText(connectedAccount.value);
   }
   </script>
-  
