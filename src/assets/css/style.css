@@ -253,7 +253,6 @@
     border-radius: 8px;
   }
   .info {
-    height: 75vh;
     border-radius: 8px;
     background-color: #5C4AB699;
     border: 1px solid rgba(250, 250, 250, 0.8);
@@ -337,20 +336,7 @@
     font-weight: 500;
   }
   .track_list {
-    height: 35vh;
-    overflow: auto;
     margin: 20px 10px 0px 10px;
-  }
-  .track_list::-webkit-scrollbar {
-    width: 10px;
-  }
-  .track_list::-webkit-scrollbar-track {
-    background: #0059ff59; 
-    border-radius: 10px;
-  }
-  .track_list::-webkit-scrollbar-thumb {
-    background: rgb(235, 221, 252); 
-    border-radius: 10px;
   }
   .track {
     height: 60px;
@@ -416,10 +402,10 @@
     line-height: 13px;
   }
   .progress_bar {
-    height: 40px;
+    height: 10px;
     margin: 15px;
     border-radius: 15px;
-    border: 1px solid rgba(250, 250, 250, 0.8);
+    border: 1px solid rgba(250, 250, 250, 0.4);
     text-align: center;
     align-content: center;
   }
@@ -451,6 +437,16 @@
     border-radius: 10rem;
     font-size: 16px;
     cursor: pointer;
+  }
+  .product_action_row button:hover {
+    background-color: #ec0868;
+    color: white;
+  }
+  .product_action_row button:disabled {
+    cursor: default;
+    border: 1px solid grey;
+    color: grey;
+    background-color: transparent;
   }
   .audio_player {
     display: flex;
@@ -484,11 +480,6 @@
   @media (max-width: 1700px) {
     .cards_row {
       grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  @media (max-width: 1490px) {
-    .track_list {
-      height: 32vh;
     }
   }
   @media (max-width: 1400px) {
@@ -533,65 +524,18 @@
     .audio_player p {
       margin: -15px 15px 0 15px;
     }
-    .track_list {
-      height: 32vh;
-    
-    }
-    .info {
-      height: 65vh;
-    }
   }
   @media (max-width: 1050px) {
     .cards_row {
       grid-template-columns: repeat(2, 1fr);
     }
   }
-  @media (max-width: 855px) {
-    .cards_row {
-      height: 71vh;
-    }
-    .info {
-      height: 61vh;
-    }
-    .track_list {
-      height: 27vh;
-    }
-  }
   @media (max-width: 750px) {
-    .cards_row {
-      grid-template-columns: repeat(1, 1fr);
-      height: 70vh;
-    }
     .title {
       display: block;
     }
-    .info {
-      height: 60vh;
-    }
-    .track_list {
-      height: 26vh;
-    }
-  }
-  @media (max-width: 703px) {
-    .track_list {
-      height: 24vh;
-  }
-}
-  @media (max-width: 653px) {
-    .cards_row {
-      height: 66vh;
-    }
-    .info {
-      height: 56vh;
-    }
-    .track_list {
-      height: 20vh;
-    }
   }
   @media (max-width: 594px) {
-    .track_list {
-      height: 15vh;
-    }
     .price_right {
       text-align: right;
     }
@@ -601,16 +545,8 @@
     }
   }
   @media (max-width: 494px) {
-    .track_list {
-      height: 13vh;
-    
-    }
     .socials i {
       margin-left: 5px;
     }
   }
-  @media (max-width: 456px) {
-    .cards_row {
-      height: 62vh;
-    }
-  }
+

@@ -61,7 +61,7 @@
       </div>
     </div>
     <div v-if="secondPage" class="container">
-      <div class="content" style="overflow: hidden;">
+      <div class="content">
         <div class="title">
           <div class="logo">
             <img @click="changePage('true')" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
@@ -121,6 +121,14 @@
                   <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
                 </div>
               </div>
+              <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
+              <div class="progress_bar">
+                <div id="fill" class="progress" :style="{ width: percentage + '%' }"></div>
+              </div>
+              <div class="product_action_row">
+                <button class="first_button" @click="purchase()" :disabled="myTicketBalance">Buy ({{ totalAvailable - totalPurchased }}/{{ totalAvailable }})</button>
+                <button class="third_button" :disabled="true" @click="sell()">Sell</button>
+              </div>
               <div class="tracks">
                 <div v-if="tracks.length" class="track_list">
                   <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }" @click="play(index, track)">
@@ -136,16 +144,6 @@
                   </div>
                 </div>
               </div>
-              <!-- <p><strong>Release Date: </strong>25 NOV 2016</p> -->
-              <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
-            </div>
-            <div class="progress_bar">
-              <div id="fill" class="progress" :style="{ width: percentage + '%' }">
-                <strong>Available:</strong> {{ totalAvailable - totalPurchased }}/{{ totalAvailable }}</div>
-              </div>
-            <div class="product_action_row">
-              <button class="first_button" @click="purchase()" :disabled="myTicketBalance">Buy</button>
-              <button class="third_button" @click="sell()">Sell</button>
             </div>
           </div>
         </div>
@@ -298,6 +296,8 @@
       await connectWallet();
     if (!isNetwork.value)
       await switchNetwork(product.value.network);
+    if (firstPage.value)
+      await checkIfConnected();
     firstPage.value = !firstPage.value;
     secondPage.value = !secondPage.value;
     history.pushState(null, null, window.location.pathname);
@@ -532,8 +532,9 @@
   }
   
   async function purchase() {
+    await checkIfConnected();
     ticketID.value = (totalPurchased.value + 1).toString();
-    const ticketPrice = web3.value.utils.toWei("1", "ether");
+    const ticketPrice = web3.value.utils.toWei(price.value, "ether");
   
     try {
       await contractInstance.value.methods.purchase(ticketID.value).send({from: connectedAccount.value, value: ticketPrice});
