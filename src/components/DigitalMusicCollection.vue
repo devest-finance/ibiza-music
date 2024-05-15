@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="cards_row" v-if="network && price">
-          <div @click="changeToInfo" class="card active" >
+          <div @click="changeToInfo" class="card active" style="border-radius:10px;">
             Buy, Sell, and Trade on Your Terms: Through our secure, user-friendly
             platform, manage your NFT holdings with ease. Buy new releases, sell them as
             their value rises, or trade with other fans across the globe. All
