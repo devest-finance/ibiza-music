@@ -153,6 +153,10 @@
     align-self: center;
     justify-self: center;
   }
+  .card_first button:hover {
+    background-color: #ec0868;
+    border: 1px solid #ec0868;
+  }
   .card_first:hover {
     backdrop-filter: blur();
     box-shadow: 0px 4px 30px 0px rgba(105, 105, 184, 0.5);
