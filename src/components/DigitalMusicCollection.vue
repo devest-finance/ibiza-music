@@ -11,8 +11,8 @@
           </div>
           <div class="wallet">
             <div class="terms">
-              <a href="termsandconditions">Terms and Conditions</a>
-              <a href="privacypolicy">Privacy Policy</a>
+              <a href="termsandconditions.html">Terms and Conditions</a>
+              <a href="privacypolicy.html">Privacy Policy</a>
             </div>
             <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
             <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="cards_row" v-if="network && price">
-          <a href="aboutus" style="text-decoration: none;">
+          <a href="aboutus.html" style="text-decoration: none;">
             <div class="card_first" style="border-radius:10px;">
               <div class="intro">
                 <p><b>Dive into revolutionary realm of NFTs at Clubmixed where you can not only listen but truly own exclusive DJ mixes.</b></p>
@@ -72,8 +72,8 @@
           </div>
           <div class="wallet">
             <div class="terms">
-              <a href="termsandconditions">Terms and Conditions</a>
-              <a href="privacypolicy">Privacy Policy</a>
+              <a href="termsandconditions.html">Terms and Conditions</a>
+              <a href="privacypolicy.html">Privacy Policy</a>
             </div>
             <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect Wallet</button>
             <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i class="fa-solid fa-network-wired"></i>Change Network</button>
@@ -136,7 +136,7 @@
                   </div>
                 </div>
               </div>
-              <p><strong>Release Date: </strong>25 NOV 2016</p>
+              <!-- <p><strong>Release Date: </strong>25 NOV 2016</p> -->
               <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense of wonder and tranquility</p>
             </div>
             <div class="progress_bar">
