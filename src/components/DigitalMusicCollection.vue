@@ -31,15 +31,15 @@
                 <p><b>Dive into revolutionary realm of NFTs at Clubmixed where you can not only listen but truly own exclusive DJ mixes.</b></p>
                 <div>
                   <p><b>Support & Invest in the Artists You Love</b></p>
-                  <p style="margin: 0 15%;">Each NFT sale directly benefits the DJs and producers you admire.</p>
+                  <p style="margin: 0 13%;">Each NFT sale directly benefits the DJs and producers you admire.</p>
                 </div>
                 <div>
                   <p><b>Exclusive ownership</b></p>
-                  <p style="margin: 0 15%;">Say goodbye to the transient nature of streaming platforms.</p>
+                  <p style="margin: 0 13%;">Say goodbye to the transient nature of streaming platforms.</p>
                 </div>
                 <div>
                   <p><b>Buy, Sell, and Trade on Your Terms</b></p>
-                  <p style="margin: 0 15%;">Through our secure, user-friendly platform, manage your NFT holdings with ease.</p>
+                  <p style="margin: 0 13%;">Through our secure, user-friendly platform, manage your NFT holdings with ease.</p>
                 </div>
               </div>
               <button class="first_button">Read More</button>
