@@ -5,8 +5,8 @@
           <div class="logo">
             <img src="../assets/images/streaming/clubmixedLogo.svg"/>
             <div>
-              <h1>NFT Music Collection</h1>
-              <h2>Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</h2>
+              <h1 style="margin-bottom: 0">NFT Music Collection</h1>
+              <h2 style="margin-top: 0; color: aqua;" >Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</h2>
             </div>
           </div>
           <div class="wallet">
@@ -25,17 +25,26 @@
           </div>
         </div>
         <div class="cards_row" v-if="network && price">
-          <div @click="changeToInfo" class="card active" style="border-radius:10px;">
-            Buy, Sell, and Trade on Your Terms: Through our secure, user-friendly
-            platform, manage your NFT holdings with ease. Buy new releases, sell them as
-            their value rises, or trade with other fans across the globe. All
-            transactions are secure, transparent, and immutable, thanks to blockchain
-            technology.
-            Join the NFT Revolution at Clubmixed: Be part of a community that moves and
-            grooves differently. At NFT.clubmixed, we're not just changing how music is
-            consumed; we're revolutionizing ownership and support for artists worldwide.
-            <a href="info" class="first_button">More info</a>
-          </div>
+          <a href="aboutus" style="text-decoration: none;">
+            <div class="card_first" style="border-radius:10px;">
+              <div class="intro">
+                <p><b>Dive into revolutionary realm of NFTs at Clubmixed where you can not only listen but truly own exclusive DJ mixes.</b></p>
+                <div>
+                  <p><b>Support & Invest in the Artists You Love</b></p>
+                  <p style="margin: 0 15%;">Each NFT sale directly benefits the DJs and producers you admire.</p>
+                </div>
+                <div>
+                  <p><b>Exclusive ownership</b></p>
+                  <p style="margin: 0 15%;">Say goodbye to the transient nature of streaming platforms.</p>
+                </div>
+                <div>
+                  <p><b>Buy, Sell, and Trade on Your Terms</b></p>
+                  <p style="margin: 0 15%;">Through our secure, user-friendly platform, manage your NFT holdings with ease.</p>
+                </div>
+              </div>
+              <button class="first_button">Read More</button>
+            </div>
+          </a>
           <div @click="changePage(card.link)" class="card" v-for="card of cards" v-bind:class="{ 'active' : card.link }">
             <div class="img_row">
               <img :src="card.image">
@@ -55,10 +64,10 @@
       <div class="content" style="overflow: hidden;">
         <div class="title">
           <div class="logo">
-            <img @click="changePage()" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
+            <img @click="changePage('true')" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
             <div>
-              <h1>NFT Music Collection</h1>
-              <h2>Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</h2>
+              <h1 style="margin-bottom: 0">NFT Music Collection</h1>
+              <h2 style="margin-top: 0; color: aqua" >Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</h2>
             </div>
           </div>
           <div class="wallet">
@@ -293,11 +302,8 @@
     secondPage.value = !secondPage.value;
     history.pushState(null, null, window.location.pathname);
   }
-  function changeToInfo(event) {
-    const link = event.currentTarget.querySelector('a.first_button');
-    if (link) {
-      window.location.href = link.href;
-    }
+  function changeToInfo() {
+    window.location.href = "aboutus";
   }
   function shuffle() {
     shuffleOn.value = !shuffleOn.value;

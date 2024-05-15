@@ -117,6 +117,46 @@
     grid-column: span 2; /* This makes item1 span 2 columns */
     width: 100% !important;
   }
+  .card_first {
+    display: grid;
+    grid-template-rows: 3fr 1fr;
+    width: 290px;
+    height: 410px;
+    background-color: #5C4AB699;
+    border: 1px solid rgba(250, 250, 250, 0.8);
+    margin-top: 30px;
+    cursor: pointer;
+  }
+  .intro{
+    padding: 10px 0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    gap: 5px;
+    background-color: #8980f0ad;
+  }
+  .card_first p {
+    color: white;
+    text-transform: none;
+    font-size: 14px;
+    margin: 0 10px;
+    text-align: center;
+  }
+  .card_first button {
+    background-color: transparent;
+    border: 1px solid rgba(250, 250, 250, 0.8);
+    width: 50%;
+    height: 50%;
+    border-radius: 10rem;
+    color: white;
+    align-self: center;
+    justify-self: center;
+  }
+  .card_first:hover {
+    backdrop-filter: blur();
+    box-shadow: 0px 4px 30px 0px rgba(105, 105, 184, 0.5);
+  }
   .card {
     display: grid;
     grid-template-rows: 3fr 2fr;
@@ -124,7 +164,7 @@
     height: 410px;
     border-radius: 8px;
     background-color: #5C4AB699;
-    border: 1px solid rgba(250, 250, 250, 0.39);
+    border: 1px solid rgba(250, 250, 250, 0.8);
     margin-top: 30px;
     opacity: 0.5;
   }
@@ -193,7 +233,7 @@
     height: 620px;
     border-radius: 8px;
     background-color: #5C4AB699;
-    border: 1px solid rgba(250, 250, 250, 0.39);
+    border: 1px solid rgba(250, 250, 250, 0.8);
     display: grid;
     grid-template-rows: 4fr 0.5fr 1fr;
     align-items: center;
@@ -212,7 +252,7 @@
     height: 75vh;
     border-radius: 8px;
     background-color: #5C4AB699;
-    border: 1px solid rgba(250, 250, 250, 0.39);
+    border: 1px solid rgba(250, 250, 250, 0.8);
   }
   .info p {
     font-size: 16px;
@@ -375,7 +415,7 @@
     height: 40px;
     margin: 15px;
     border-radius: 15px;
-    border: 1px solid rgba(250, 250, 250, 0.39);
+    border: 1px solid rgba(250, 250, 250, 0.8);
     text-align: center;
     align-content: center;
   }
