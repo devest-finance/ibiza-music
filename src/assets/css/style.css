@@ -87,6 +87,10 @@
   .title i {
     margin-right: 15px;
   }
+  .title button:hover {
+    background-color: #ec0868;
+    color: white;
+  }
   .connected {
     display: block;
     width: 170px;
@@ -97,6 +101,10 @@
     text-align: center;
     align-content: center;
     color: white;
+  }
+  .connected:hover {
+    cursor: pointer;
+    background-color: transparent;
   }
   .connected p {
     margin: 0;

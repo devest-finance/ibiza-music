@@ -20,16 +20,12 @@
           <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i
               class="fa-solid fa-network-wired"></i>Change Network
           </button>
-          <div v-if="isConnected && isNetwork" class="connected">
-            <div class="wallet_info">
-              <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()"
-                                                                                        class="fa-regular fa-copy"></i>
-              </p>
-              <p><strong>Balance: </strong> {{ myBalance.toFixed(2) }} {{ network?.nativeCurrency.symbol }}</p>
-            </div>
-          </div>
+          <button v-if="isConnected && isNetwork" @click="open()">
+            <i style="margin-right: 5px;" class="fa-solid fa-link"></i> Wallet Connected
+          </button>
         </div>
       </div>
+      <CookieBanner />
       <div class="cards_row">
         <a href="aboutus.html" style="text-decoration: none;">
           <div class="card_first" style="border-radius:10px;">
@@ -68,6 +64,7 @@
       </div>
     </div>
   </div>
+  
   <div v-if="secondPage" class="container">
     <div class="content">
       <div class="title">
@@ -89,16 +86,12 @@
           <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i
               class="fa-solid fa-network-wired"></i>Change Network
           </button>
-          <div v-if="isConnected && isNetwork" class="connected">
-            <div class="wallet_info">
-              <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()"
-                                                                                        class="fa-regular fa-copy"></i>
-              </p>
-              <p><strong>Balance: </strong> {{ myBalance.toFixed(2) }} {{ network.nativeCurrency?.symbol }}</p>
-            </div>
-          </div>
+          <button v-if="isConnected && isNetwork" @click="open()">
+            <i style="margin-right: 5px;" class="fa-solid fa-link"></i> Wallet Connected
+          </button>
         </div>
       </div>
+      <CookieBanner />
       <div class="product_row">
         <div class="player">
           <div class="player_img">
@@ -128,7 +121,7 @@
           <div class="track_info">
             <div class="title">
               <h1>DEEP TECH SIZZLE</h1>
-              <h1 class="price_right">{{ price }} {{ network.nativeCurrency?.symbol }}</h1>
+              <h1 class="price_right">{{ cards[0].price }} {{ network.nativeCurrency?.symbol }}</h1>
             </div>
             <div class="title_info">
               <div>
@@ -177,6 +170,8 @@
 </template>
 
 <script setup>
+import CookieBanner from "./CookieBanner.vue";
+
 import {onBeforeMount, onMounted, onUnmounted, ref, watch} from "vue";
 import {Devest} from "../assets/js/devest-app";
 import {BrowserProvider, formatUnits, Interface, Contract} from 'ethers';
@@ -266,7 +261,6 @@ let product = ref(null);
 let contract = ref(null);
 let network = ref(null);
 let web3 = ref(null);
-let contractInstance = ref(null);
 let chainID = ref("");
 let totalAvailable = ref(0n);
 let totalPurchased = ref(0n);
@@ -371,6 +365,9 @@ function shuffle() {
 
 function repeat() {
   repeatOn.value = !repeatOn.value;
+}
+function open() {
+  modal.open();
 }
 
 async function loadTracks() {
@@ -565,6 +562,7 @@ async function getData() {
     product.value = res.payload.product;
     contract.value = res.payload.contract;
     network.value = res.payload.network;
+    await fetchTokenPrice();
     console.log(contract.value);
   } catch (error) {
     console.log(error);
@@ -590,7 +588,6 @@ async function getCurrentNetwork() {
 async function purchase() {
   await setupConnection();
   ticketID.value = (totalPurchased.value + 1).toString();
-  const ticketPrice = web3.value.utils.toWei(price.value, "ether");
 }
 
 function play(index, track) {
