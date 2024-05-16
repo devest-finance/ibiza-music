@@ -7,6 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clubmixed NFT Collection</title>
     <link rel="icon" href="/src/assets/images/streaming/clubmixedLogo.svg">
+      <script>
+          // Define `global` if it doesn't exist
+          if (typeof global === 'undefined') {
+              var global = window;
+          }
+
+          // Define `process` if it doesn't exist
+          if (typeof process === 'undefined') {
+              var process = {
+                  env: {
+                      NODE_ENV: 'production'
+                  }
+              };
+          }
+      </script>
   </head>
   <body style="margin: 0; overflow: hidden;">
     <div id="app"></div>

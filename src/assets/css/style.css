@@ -527,7 +527,44 @@
   }
   @media (max-width: 1050px) {
     .cards_row {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(1, 1fr);
+    }
+    .title h1{
+      font-size: 0.8em;
+      margin-right: 0px;
+    }
+    .title h2{
+      font-size: 0.6em;
+      margin-right: 0px;
+    }
+    .logo img{
+      height: 50px;
+    }
+    .terms a{
+      font-size: 0.8em;
+    }
+    .connected {
+      width: 140px;
+    }
+    .connected a{
+      font-size: 0.5em;
+    }
+    .info .title h1{
+      font-size: 1em;
+    }
+    .info .title_info p{
+      font-size: 0.7em;
+    }
+    .player{
+      height: 11vh;
+      min-height: 90px;
+      margin-top: 20px;
+    }
+    .title button{
+      font-size: 0.8em;
+    }
+    .title button{
+      width: 150px;
     }
   }
   @media (max-width: 750px) {

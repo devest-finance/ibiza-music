@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@web3modal/ethers": "^4.2.0",
     "vue": "^3.4.21",
     "web3": "^4.8.0"
   },
