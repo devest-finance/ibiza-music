@@ -87,7 +87,7 @@
               class="fa-solid fa-network-wired"></i>Change Network
           </button>
           <button v-if="isConnected && isNetwork" @click="open()">
-            <i style="margin-right: 5px;" class="fa-solid fa-link"></i> Wallet Connected
+            <i style="margin-right: 5px;" class="fa-solid fa-link"></i> Disconnect
           </button>
         </div>
       </div>
@@ -605,7 +605,7 @@ function play(index, track) {
   const productAddress = product.value.address;
 
   const xmlhttp = new XMLHttpRequest();
-  xmlhttp.open("GET", "https://stream.juice.com.hr/authorize");
+  xmlhttp.open("GET", "https://nft.clubmixed.com/authorize");
   xmlhttp.setRequestHeader("signature", token);
   xmlhttp.setRequestHeader("network", networkChainId);
   xmlhttp.setRequestHeader("address", wallet);
@@ -619,7 +619,7 @@ function play(index, track) {
 
   xmlhttp.onreadystatechange = () => {
     if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 200) {
-      playUrl.value = "https://stream.juice.com.hr/stream/" + index;
+      playUrl.value = "https://nft.clubmixed.com/stream/" + index;
       playOn.value = true;
     }
     if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 403) {
