@@ -25,12 +25,12 @@
               <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()"
                                                                                         class="fa-regular fa-copy"></i>
               </p>
-              <p><strong>Balance: </strong> {{ myBalance.toFixed(2) }} {{ network.nativeCurrency.symbol }}</p>
+              <p><strong>Balance: </strong> {{ myBalance.toFixed(2) }} {{ network?.nativeCurrency.symbol }}</p>
             </div>
           </div>
         </div>
       </div>
-      <div class="cards_row" v-if="network && price">
+      <div class="cards_row">
         <a href="aboutus.html" style="text-decoration: none;">
           <div class="card_first" style="border-radius:10px;">
             <div class="intro">
@@ -61,7 +61,7 @@
             <h1>{{ card.title }}</h1>
             <p>{{ card.artist }}</p>
             <p>{{ card.released }}</p>
-            <h1 v-if="card.price">{{ card.price }} {{ network.nativeCurrency.symbol }}</h1>
+            <h1 v-if="card.price">{{ card.price }} {{ network?.nativeCurrency.symbol }}</h1>
             <p v-if="card.price" style="margin: 0">({{ (tokenPrice * card.price).toFixed(2) + ' $' }})</p>
           </div>
         </div>
@@ -94,7 +94,7 @@
               <p><strong>Address: </strong> {{ transformAddress(connectedAccount) }} <i @click="copyAccountAddress()"
                                                                                         class="fa-regular fa-copy"></i>
               </p>
-              <p><strong>Balance: </strong> {{ myBalance.toFixed(2) }} {{ network.nativeCurrency.symbol }}</p>
+              <p><strong>Balance: </strong> {{ myBalance.toFixed(2) }} {{ network.nativeCurrency?.symbol }}</p>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@
           <div class="track_info">
             <div class="title">
               <h1>DEEP TECH SIZZLE</h1>
-              <h1 class="price_right">{{ price }} {{ network.nativeCurrency.symbol }}</h1>
+              <h1 class="price_right">{{ price }} {{ network.nativeCurrency?.symbol }}</h1>
             </div>
             <div class="title_info">
               <div>
@@ -177,16 +177,17 @@
 </template>
 
 <script setup>
-import {onBeforeMount, onMounted, onUnmounted, ref} from "vue";
+import {onBeforeMount, onMounted, onUnmounted, ref, watch} from "vue";
 import {Devest} from "../assets/js/devest-app";
-import {BrowserProvider, formatUnits} from 'ethers';
+import {BrowserProvider, formatUnits, Interface, Contract} from 'ethers';
 import {
   useWeb3Modal,
   createWeb3Modal,
   useWalletInfo,
   defaultConfig,
   useWeb3ModalAccount,
-  useWeb3ModalProvider
+  useWeb3ModalProvider,
+  useWeb3ModalEvents
 } from "@web3modal/ethers/vue";
 
 const devest = new Devest();
@@ -295,11 +296,10 @@ const durationSeconds = ref("00");
 const progress = ref(0);
 
 onBeforeMount(async () => {
-  await getData();
-  await checkIfConnected();
+  await loadTracks();
 });
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('popstate', event => {
     event.preventDefault();
     firstPage.value = !firstPage.value;
@@ -311,11 +311,16 @@ onMounted(() => {
     secondPage.value = !secondPage.value;
   }
 
-  /*
-  if (provider) {
-    provider.on("accountsChanged", handleAccountsChanged);
-    provider.on("chainChanged", handleNetworkChange);
-  }*/
+  await getData();
+
+  const info = useWeb3ModalAccount();
+  if (info.isConnected.value)
+    await setupConnection();
+
+  // Watch for changes to the 'address' ref
+  watch(info.isConnected, async (newValue, oldValue) => {
+    await setupConnection();
+  });
 });
 
 onUnmounted(() => {
@@ -330,7 +335,7 @@ async function getPrice() {
   const response = await devest.request("data/get", [
     product.value._id,
     "price", {}]);
-  price.value = (((1 / Math.pow(10, network.value.nativeCurrency.decimals))) * response);
+  price.value = (((1 / Math.pow(10, network?.value.nativeCurrency.decimals))) * response);
 }
 
 async function fetchTokenPrice() {
@@ -431,10 +436,14 @@ async function createToken() {
   }
   console.log("Creating the token...");
 
-  const mes = await message();
+  const mes = await message(connectedAccount.value);
   console.log("Message:", mes);
   try {
-    const signature = await web3.value.eth.personal.sign(mes, connectedAccount.value, "");
+    const { walletProvider } = useWeb3ModalProvider();
+    const ethersProvider = new BrowserProvider(walletProvider.value);
+
+    const signer = await ethersProvider.getSigner()
+    const signature = await signer?.signMessage(mes);
 
     console.log("New token created!");
     localStorage.setItem("devest-token", signature);
@@ -444,17 +453,17 @@ async function createToken() {
   }
 }
 
-async function message() {
+async function message(address) {
   if (!connectedAccount.value) return;
-  const address = await web3.value.eth.getAccounts();
   return "Welcome to DeVest\n" +
       "Click to sign-in and accept the DeVest Terms of Service: https://devest.finance/tos\n" +
       "This request will not trigger a blockchain transaction or cost any gas fees.\n" +
       "Your authentication status will reset after 24 hours.\n" +
-      "Wallet address:\n" + address[0].toLowerCase();
+      "Wallet address:\n" + address.toLowerCase();
 }
 
-async function checkIfConnected() {
+async function setupConnection() {
+  //await getData();
   const info = useWeb3ModalAccount();
 
   if (!info.isConnected.value)
@@ -479,83 +488,24 @@ async function checkIfConnected() {
     myBalance.value = Number(formattedBalance);
 
     // create token
-    if (accounts[0] === connectedAccount.value && !localStorage.getItem("devest-token")) {
+    if (connectedAccount.value && !localStorage.getItem("devest-token")) {
       await createToken();
-  }
-
-  /*
-  isConnected.value = false;
-  isNetwork.value = false;
-  if (provider) {
-    try {
-      const accounts = await provider.request({
-        method: "eth_accounts",
-      });
-      if (!accounts) {
-        localStorage.removeItem("devest-token");
-        await connectWallet();
-      } else if (accounts[0] === localStorage.getItem("devest-wallet") && localStorage.getItem("devest-token")) {
-        isConnected.value = true;
-        await getCurrentNetwork();
-        connectedAccount.value = accounts[0];
-        myBalance.value = Number(await web3.value.eth.getBalance(accounts[0]));
-        myBalance.value = myBalance.value / Math.pow(10, 18);
-
-        myTicketBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
-      } else if (accounts[0] !== connectedAccount.value) {
-        localStorage.removeItem("devest-token");
-        await connectWallet();
-      } else if (accounts[0] === connectedAccount.value && !localStorage.getItem("devest-token")) {
-        await createToken();
-      }
-    } catch (error) {
-      console.error("Error checking for connected account:", error);
     }
-  } else {
-    console.log("Provider is not initialized!");
-  }*/
+
+    // ----
+    const signer = await ethersProvider.getSigner();
+    const DvMedia = new Contract("0xeb923be1866a70439ff8892ffcf2a6c128f7069a", contract.value.abi,  signer)
+    myTicketBalance.value = await DvMedia.balanceOf(connectedAccount.value);
+    totalAvailable.value = await DvMedia.totalSupply();
+    totalAvailable.value = Number(totalAvailable.value);
+    totalPurchased.value = await DvMedia.totalPurchased();
+    totalPurchased.value = Number(totalPurchased.value);
+    percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+  }
 }
 
 async function connectWallet() {
-  //try {
-
   await modal.open();
-  await checkIfConnected();
-
-  function handler({ name, icon }){
-    console.log(name, icon)
-  }
-
-
-  //debugger;
-  //const provider = new BrowserProvider(walletProvider);
-
-
-  //const provider = new BrowserProvider(walletProvider)
-  //const signer = await provider.getSigner()
-  //const signature = await signer?.signMessage('Hello Web3Modal Ethers')
-  //console.log(signature)
-
-
-  //modal.open({ view: 'Account' });
-  /*
-  const provider = modal.getWalletProvider();
-  web3.value = new Web3(provider);
-  const accounts = await web3.value.eth.getAccounts();
-  connectedAccount.value = accounts[0];
-  isConnected.value = true;
-  myBalance.value = Number(await web3.value.eth.getBalance(accounts[0]));
-  myBalance.value = myBalance.value / Math.pow(10, 18);
-  myTicketBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
-  await createToken();
-  await getCurrentNetwork();
-  console.log("Connected account:", connectedAccount.value);
-
-   */
-  /*
-  } catch (error) {
-    console.error("User denied account access or an error occurred:", error);
-  }*/
 }
 
 async function switchNetwork(chainId) {
@@ -577,7 +527,7 @@ async function switchNetwork(chainId) {
 }
 
 async function handleAccountsChanged() {
-  await checkIfConnected();
+  await setupConnection();
 }
 
 function handleNetworkChange(chainId) {
@@ -615,6 +565,7 @@ async function getData() {
     product.value = res.payload.product;
     contract.value = res.payload.contract;
     network.value = res.payload.network;
+    console.log(contract.value);
   } catch (error) {
     console.log(error);
   }
@@ -637,25 +588,9 @@ async function getCurrentNetwork() {
 }
 
 async function purchase() {
-  await checkIfConnected();
+  await setupConnection();
   ticketID.value = (totalPurchased.value + 1).toString();
   const ticketPrice = web3.value.utils.toWei(price.value, "ether");
-
-  try {
-    await contractInstance.value.methods.purchase(ticketID.value).send({
-      from: connectedAccount.value,
-      value: ticketPrice
-    });
-    purchased.value = true;
-
-    totalAvailable.value = await contractInstance.value.methods.totalSupply().call();
-    totalPurchased.value = await contractInstance.value.methods.totalPurchased().call();
-    myBalance.value = Number(await web3.value.eth.getBalance(accounts[0]));
-    myBalance.value = myBalance.value / Math.pow(10, 18);
-    myTicketBalance.value = await contractInstance.value.methods.balanceOf(connectedAccount.value).call();
-  } catch (error) {
-    console.log(error);
-  }
 }
 
 function play(index, track) {
@@ -667,6 +602,8 @@ function play(index, track) {
 
   const token = localStorage.getItem("devest-token");
   const wallet = localStorage.getItem("devest-wallet");
+  console.log(token, wallet);
+  console.log(localStorage);
   const networkChainId = network.value.chainId;
   const productAddress = product.value.address;
 
