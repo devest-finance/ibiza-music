@@ -597,6 +597,23 @@ function play(index, track) {
   track.active = true;
   active_index.value = index;
 
+  debugger;
+  // track index
+  try {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.name,
+        artist: "Lenny Ibizzare",
+        album: 'DEEP TECH SIZZLE FROM THE VAULT', // Optional
+        artwork: [
+          {src: '/assets/LennyIbizzare-BmHPN7nV.png', sizes: '512x512', type: 'image/jpeg'},
+        ]
+      });
+    }
+  } catch (ex){
+    console.log(ex);
+  }
+
   const token = localStorage.getItem("devest-token");
   const wallet = localStorage.getItem("devest-wallet");
   console.log(token, wallet);
@@ -605,7 +622,7 @@ function play(index, track) {
   const productAddress = product.value.address;
 
   const xmlhttp = new XMLHttpRequest();
-  xmlhttp.open("GET", "https://nft.clubmixed.com/authorize");
+  xmlhttp.open("GET", `https://nft.clubmixed.com/authorize/${(new Date().getTime())}`);
   xmlhttp.setRequestHeader("signature", token);
   xmlhttp.setRequestHeader("network", networkChainId);
   xmlhttp.setRequestHeader("address", wallet);
