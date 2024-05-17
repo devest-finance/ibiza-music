@@ -58,7 +58,7 @@
             <p>{{ card.artist }}</p>
             <p>{{ card.released }}</p>
             <h1 v-if="card.price">{{ card.price }} {{ network?.nativeCurrency.symbol }}</h1>
-            <p v-if="card.price" style="margin: 0">({{ (tokenPrice * card.price).toFixed(2) + ' $' }})</p>
+            <p v-if="card.price && tokenPrice" style="margin: 0">({{ (tokenPrice * card.price).toFixed(2) + ' $' }})</p>
           </div>
         </div>
       </div>
@@ -172,17 +172,15 @@
 <script setup>
 import CookieBanner from "./CookieBanner.vue";
 
-import {onBeforeMount, onMounted, onUnmounted, ref, watch} from "vue";
+import {onBeforeMount, onMounted, ref, watch} from "vue";
 import {Devest} from "../assets/js/devest-app";
-import {BrowserProvider, formatUnits, Interface, Contract} from 'ethers';
+import {BrowserProvider, formatUnits, Contract, ethers} from 'ethers';
 import {
   useWeb3Modal,
   createWeb3Modal,
-  useWalletInfo,
   defaultConfig,
   useWeb3ModalAccount,
   useWeb3ModalProvider,
-  useWeb3ModalEvents
 } from "@web3modal/ethers/vue";
 
 const devest = new Devest();
@@ -260,7 +258,7 @@ let connectedAccount = ref("");
 let product = ref(null);
 let contract = ref(null);
 let network = ref(null);
-let web3 = ref(null);
+let contractInstance = ref(null);
 let chainID = ref("");
 let totalAvailable = ref(0n);
 let totalPurchased = ref(0n);
@@ -272,7 +270,6 @@ let percentage = ref(0);
 let ticketID = ref("");
 let playUrl = ref("");
 
-const purchased = ref(false);
 const firstPage = ref(true);
 const secondPage = ref(false);
 const shuffleOn = ref(false);
@@ -317,21 +314,6 @@ onMounted(async () => {
   });
 });
 
-onUnmounted(() => {
-  /*
-  if (provider) {
-    provider.off("accountsChanged", handleAccountsChanged);
-    provider.off("chainChanged", handleNetworkChange);
-  }*/
-});
-
-async function getPrice() {
-  const response = await devest.request("data/get", [
-    product.value._id,
-    "price", {}]);
-  price.value = (((1 / Math.pow(10, network?.value.nativeCurrency.decimals))) * response);
-}
-
 async function fetchTokenPrice() {
   if (!network.value.apiId) {
     console.log("Price in USD not available for this token");
@@ -353,10 +335,6 @@ async function changePage(doit) {
   firstPage.value = !firstPage.value;
   secondPage.value = !secondPage.value;
   history.pushState(null, null, window.location.pathname);
-}
-
-function changeToInfo() {
-  window.location.href = "aboutus";
 }
 
 function shuffle() {
@@ -491,11 +469,11 @@ async function setupConnection() {
 
     // ----
     const signer = await ethersProvider.getSigner();
-    const DvMedia = new Contract("0xeb923be1866a70439ff8892ffcf2a6c128f7069a", contract.value.abi,  signer)
-    myTicketBalance.value = await DvMedia.balanceOf(connectedAccount.value);
-    totalAvailable.value = await DvMedia.totalSupply();
+    contractInstance.value = new Contract("0xeb923be1866a70439ff8892ffcf2a6c128f7069a", contract.value.abi,  signer)
+    myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
+    totalAvailable.value = await contractInstance.value.totalSupply();
     totalAvailable.value = Number(totalAvailable.value);
-    totalPurchased.value = await DvMedia.totalPurchased();
+    totalPurchased.value = await contractInstance.value.totalPurchased();
     totalPurchased.value = Number(totalPurchased.value);
     percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
   }
@@ -503,33 +481,6 @@ async function setupConnection() {
 
 async function connectWallet() {
   await modal.open();
-}
-
-async function switchNetwork(chainId) {
-  /*
-  if (provider) {
-    try {
-      await provider.request({
-        method: "wallet_switchEthereumChain",
-        params: [{chainId: chainId}],
-      });
-      console.log(`Switched to the network with chainId ${chainId}`);
-      isNetwork.value = true;
-    } catch (switchError) {
-      console.error("Failed to switch the network:", switchError);
-    }
-  } else {
-    console.log("Provider is not initialized.");
-  }*/
-}
-
-async function handleAccountsChanged() {
-  await setupConnection();
-}
-
-function handleNetworkChange(chainId) {
-  console.log("Network changed to:", chainId);
-  window.location.reload();
 }
 
 function handleTimeUpdate() {
@@ -569,25 +520,18 @@ async function getData() {
   }
 }
 
-async function getCurrentNetwork() {
-  if (provider) {
-    try {
-      chainID = await provider.request({method: "eth_chainId"});
-      console.log(`Connected to network => Chain ID: ${chainID}`);
-
-      if (chainID === product.value.network) isNetwork.value = true;
-      else isNetwork.value = false;
-    } catch (error) {
-      console.error("Failed to get network:", error);
-    }
-  } else {
-    console.log("Provider is not initialized.");
-  }
-}
-
 async function purchase() {
   await setupConnection();
   ticketID.value = (totalPurchased.value + 1).toString();
+
+  const res = await contractInstance.value.purchase(ticketID.value, {
+    value: ethers.parseEther("1"),
+    from: connectedAccount.value
+  });
+  totalPurchased.value = await contractInstance.value.totalPurchased();
+  totalPurchased.value = Number(totalPurchased.value);
+  percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+  myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
 }
 
 function play(index, track) {
@@ -597,7 +541,6 @@ function play(index, track) {
   track.active = true;
   active_index.value = index;
 
-  debugger;
   // track index
   try {
     if ('mediaSession' in navigator) {
@@ -690,14 +633,6 @@ function next() {
     if (active_index.value !== tracks.value.length - 1)
       play(active_index.value + 1, tracks.value[active_index.value + 1]);
   }
-}
-
-function transformAddress(address) {
-  return address.slice(0, 3) + "..." + address.slice(address.length - 3);
-}
-
-function copyAccountAddress() {
-  navigator.clipboard.writeText(connectedAccount.value);
 }
 </script>
 
