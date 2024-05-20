@@ -559,8 +559,6 @@ function play(index, track) {
 
   const token = localStorage.getItem("devest-token");
   const wallet = localStorage.getItem("devest-wallet");
-  console.log(token, wallet);
-  console.log(localStorage);
   const networkChainId = network.value.chainId;
   const productAddress = product.value.address;
 
