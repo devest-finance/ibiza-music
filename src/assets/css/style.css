@@ -269,6 +269,7 @@
     font-size: 16px;
     margin: 15px;
     line-height: 20px;
+    text-align: justify;
   }
   .player_controls {
     display: flex;
@@ -341,6 +342,7 @@
     line-height: 54px;
     font-weight: 500;
   }
+
   .track_list {
     margin: 20px 10px 0px 10px;
   }
@@ -350,16 +352,39 @@
     border-radius: 15px;
     margin: 2px 0;
     display: grid;
-    grid-template-columns: 0.5fr 6.5fr 1fr;
+    grid-template-columns: 0.5fr 6fr 1fr 0.5fr;
     align-items: center;
     text-align: center;
     cursor: pointer;
     margin-right: 5px;
   }
+
+  .track button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color:white
+  }
+  .track button:disabled {
+    cursor: default;
+  }
+  track button:hover {
+    color: #ec0868;
+  }
+  .track button:disabled:hover {
+    color: black;
+  }
+
   .track_active {
     background-color: rgb(186, 206, 230);
     color: black;
     cursor: default;
+  }
+  .track_active button {
+    color: black;
+  }
+  .track_active button:hover i {
+    color: #ec0868;
   }
   .track.track_active:hover {
     background-color: rgb(186, 206, 230)
@@ -372,6 +397,9 @@
   }
   .track:hover {
     background-color: rgb(235, 221, 252);
+    color: black;
+  }
+  .track:hover button {
     color: black;
   }
   .track_name {
@@ -420,6 +448,15 @@
     background-color: #ec0868;
     border-radius: 15px;
     align-content: center;
+  }
+  .message {
+    text-align: center;
+    margin-left: 5%;
+    margin-right: 5%;
+    border: 1px solid #ec0868;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #ec0868;
   }
   @keyframes fillAnimation {
     from {

@@ -14,11 +14,8 @@
             <a href="termsandconditions.html">Terms and Conditions</a>
             <a href="privacypolicy.html">Privacy Policy</a>
           </div>
-          <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect
+          <button id="connectButton" v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect
             Wallet
-          </button>
-          <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i
-              class="fa-solid fa-network-wired"></i>Change Network
           </button>
           <button v-if="isConnected && isNetwork" @click="open()">
             <i style="margin-right: 5px;" class="fa-solid fa-link"></i> Wallet Connected
@@ -83,9 +80,6 @@
           <button v-if="!isConnected && !isNetwork" @click="connectWallet()"><i class="fa-solid fa-wallet"></i>Connect
             Wallet
           </button>
-          <button v-if="isConnected && !isNetwork" @click="switchNetwork(product.network)"><i
-              class="fa-solid fa-network-wired"></i>Change Network
-          </button>
           <button v-if="isConnected && isNetwork" @click="open()">
             <i style="margin-right: 5px;" class="fa-solid fa-link"></i> Disconnect
           </button>
@@ -118,6 +112,9 @@
           </div>
         </div>
         <div class="info">
+          <div v-if="!isConnected" class="message" style="margin-top: 10px;">
+            <span> Please connect your wallet to view all information and access all features. </span>
+          </div>
           <div class="track_info">
             <div class="title">
               <h1>DEEP TECH SIZZLE</h1>
@@ -134,17 +131,19 @@
                 <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
               </div>
             </div>
-            <p>Ethereal Melodies is a captivating album that takes listeners on a journey through the cosmos. Crafted by
-              the renowned artist Celestial Harmonies, this collection of ambient and experimental tracks evokes a sense
-              of wonder and tranquility</p>
+            <p>In a rare turn of events we hear by bring you a selection of unreleased tracks from the elusive vault of the musical chameleon that is Lenny Ibizarre. The tunes, which stretches over 12 years of production, is a tasteful selection of groovy outliers most of whom had never seen the light of day until now. Enjoy the ride through a sprawling variety of deep electronic tech-house gems.</p>
             <div class="progress_bar">
               <div id="fill" class="progress" :style="{ width: percentage + '%' }"></div>
             </div>
             <div class="product_action_row">
-              <button class="first_button" @click="purchase()" :disabled="myTicketBalance">Buy
+              <button class="first_button" @click="purchase()" :disabled="myTicketBalance || !(totalAvailable - totalPurchased)">Buy
                 ({{ totalAvailable - totalPurchased }}/{{ totalAvailable }})
               </button>
               <button class="third_button" :disabled="true" @click="sell()">Sell</button>
+            </div>
+            <br v-if="errMsg"> </br>
+            <div v-if="errMsg" class="message">
+              <span>{{ errMsg }}</span>
             </div>
             <div class="tracks">
               <div v-if="tracks.length" class="track_list">
@@ -157,8 +156,8 @@
                   </div>
                   <div class="duration">
                     <h4>{{ track.duration }}</h4>
-                    <p>2024</p>
                   </div>
+                  <button :disabled="!track.active" @click="download(track)"><i class="fa-solid fa-download"></i></button>
                 </div>
               </div>
             </div>
@@ -262,7 +261,7 @@ let contractInstance = ref(null);
 let chainID = ref("");
 let totalAvailable = ref(0n);
 let totalPurchased = ref(0n);
-let price = ref(0);
+let errMsg = ref("");
 let tokenPrice = ref(0);
 let myTicketBalance = ref(0n);
 let myBalance = ref(0);
@@ -469,7 +468,7 @@ async function setupConnection() {
 
     // ----
     const signer = await ethersProvider.getSigner();
-    contractInstance.value = new Contract("0xeb923be1866a70439ff8892ffcf2a6c128f7069a", contract.value.abi,  signer)
+    contractInstance.value = new Contract("0xeb923be1866a70439ff8892ffcf2a6c128f7069a", contract.value.abi, signer)
     myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
     totalAvailable.value = await contractInstance.value.totalSupply();
     totalAvailable.value = Number(totalAvailable.value);
@@ -500,6 +499,16 @@ function initializeAudioProperties() {
   }
 }
 
+function download(track) {
+  const link = document.createElement('a');
+  link.href = playUrl.value;
+  link.download = track.name; // You can set the default filename here
+  link.click();
+
+  URL.revokeObjectURL(this.audioUrl);
+  this.audioUrl = null; // Reset the URL after download
+}
+
 function seek() {
   if (audioRef.value) {
     const time = (audioRef.value.duration * progress.value) / 100;
@@ -514,7 +523,6 @@ async function getData() {
     contract.value = res.payload.contract;
     network.value = res.payload.network;
     await fetchTokenPrice();
-    console.log(contract.value);
   } catch (error) {
     console.log(error);
   }
@@ -523,11 +531,27 @@ async function getData() {
 async function purchase() {
   await setupConnection();
   ticketID.value = (totalPurchased.value + 1).toString();
+  let fee = await devest.request("data/get", [props.product_id, "platformFee", {}]);
+  let price = await devest.request("data/get", [props.product_id, "price", {},]);
+  price = ethers.formatEther(Number(price).toString());
+  
 
-  const res = await contractInstance.value.purchase(ticketID.value, {
-    value: ethers.parseEther("1"),
+  const finalPrice = Number(fee) + Number(price);
+
+  debugger;
+
+  try {
+    const res = await contractInstance.value.purchase(ticketID.value, {
+    value: ethers.parseEther(finalPrice.toString()),
     from: connectedAccount.value
   });
+  } catch (error) {
+    console.log(error);
+    errMsg.value = "Insufficient balance to complete the transaction. \nPlease ensure you have enough balance to cover the cost and gas fees."
+    setTimeout(() => {
+      errMsg.value = "";
+    }, 4000);
+  }
   totalPurchased.value = await contractInstance.value.totalPurchased();
   totalPurchased.value = Number(totalPurchased.value);
   percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
