@@ -95,7 +95,7 @@
             <p v-if="(currentTimeMinutes !== null) && (currentTimeSeconds !== 0)">{{
                 currentTimeMinutes
               }}:{{ currentTimeSeconds }}</p>
-            <audio ref="audioRef" @timeupdate="handleTimeUpdate" @loadedmetadata="initializeAudioProperties"
+            <audio controls style="display: none;" ref="audioRef" @timeupdate="handleTimeUpdate" @loadedmetadata="initializeAudioProperties"
                    @ended="next()" autoplay :src="playUrl"></audio>
             <input type="range" id="progress-bar" max="100" v-model="progress" @input="seek">
             <p v-if="durationMinutes && durationSeconds">{{ durationMinutes }}:{{ durationSeconds }}</p>
@@ -157,7 +157,7 @@
                   <div class="duration">
                     <h4>{{ track.duration }}</h4>
                   </div>
-                  <button :disabled="!track.active" @click="download(track)"><i class="fa-solid fa-download"></i></button>
+                  <button :disabled="!track.active"><i class="fa-solid fa-download"></i></button>
                 </div>
               </div>
             </div>
@@ -171,7 +171,7 @@
 <script setup>
 import CookieBanner from "./CookieBanner.vue";
 
-import {onBeforeMount, onMounted, ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {Devest} from "../assets/js/devest-app";
 import {BrowserProvider, formatUnits, Contract, ethers} from 'ethers';
 import {
@@ -285,10 +285,6 @@ const durationMinutes = ref("0");
 const durationSeconds = ref("00");
 const progress = ref(0);
 
-onBeforeMount(async () => {
-  await loadTracks();
-});
-
 onMounted(async () => {
   window.addEventListener('popstate', event => {
     event.preventDefault();
@@ -308,6 +304,13 @@ onMounted(async () => {
     await setupConnection();
 
   // Watch for changes to the 'address' ref
+  watch(info.address, async (newValue, oldValue) => {
+    if (!newValue) {
+      localStorage.removeItem("devest-token");
+      localStorage.removeItem("devest-wallet");
+      window.location.reload();
+    }
+  });
   watch(info.isConnected, async (newValue, oldValue) => {
     await setupConnection();
   });
@@ -348,59 +351,20 @@ function open() {
 }
 
 async function loadTracks() {
-  tracks.value = [{
-    name: "Computers Have Control",
-    duration: "7:39",
-    active: false
-  }, {
-    name: "Sgt. Poppers Skronk Quatet",
-    duration: "9:06",
-    active: false
-  }, {
-    name: "Balearism",
-    duration: "7:17",
-    active: false
-  }, {
-    name: "Gearbox",
-    duration: "7:08",
-    active: false
-  }, {
-    name: "Girlz",
-    duration: "8:46",
-    active: false
-  }, {
-    name: "Deep Finca",
-    duration: "6:47",
-    active: false
-  }, {
-    name: "Psychotropic",
-    duration: "9:43",
-    active: false
-  }, {
-    name: "Dirt Groove",
-    duration: "7:44",
-    active: false
-  }, {
-    name: "Drivesharf",
-    duration: "8:45",
-    active: false
-  }, {
-    name: "Nu York Dub",
-    duration: "4:48",
-    active: false
-  }, {
-    name: "Baseheadz United",
-    duration: "4:48",
-    active: false
-  }, {
-    name: "Kleptomania",
-    duration: "7:15",
-    active: false
-  }, {
-    name: "Dawn of The Acid Warrior",
-    duration: "6:22",
-    active: false
-  }];
+  try {
+    const trackPromises = product.value.media.map(async (mediaItem) => {
+      const res = await devest.request("data/getTrackData", [mediaItem, {}]);
+      return {
+        name: res.title,
+        duration: res.duration,
+        active: false,
+      };
+    });
+
+    tracks.value = await Promise.all(trackPromises);
+  } catch (error) {
+    console.error("Error loading tracks:", error);
+  }
 }
 
 async function createToken() {
@@ -499,15 +463,31 @@ function initializeAudioProperties() {
   }
 }
 
-function download(track) {
-  const link = document.createElement('a');
-  link.href = playUrl.value;
-  link.download = track.name; // You can set the default filename here
-  link.click();
+async function download(track) {
+  try {
+        const response = await fetch(playUrl.value);
+        debugger;
+        if (!response.ok) {
+          throw new Error('Invalid response from server');  
+        }
+        const blob = await response.blob();
 
-  URL.revokeObjectURL(this.audioUrl);
-  this.audioUrl = null; // Reset the URL after download
-}
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = track.name; 
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error('Error downloading the audio file:', error);
+      }
+    }
 
 function seek() {
   if (audioRef.value) {
@@ -522,6 +502,7 @@ async function getData() {
     product.value = res.payload.product;
     contract.value = res.payload.contract;
     network.value = res.payload.network;
+    await loadTracks();
     await fetchTokenPrice();
   } catch (error) {
     console.log(error);
