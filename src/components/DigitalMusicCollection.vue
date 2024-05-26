@@ -209,11 +209,11 @@ const ethersConfig = defaultConfig({
 const web3Modal = createWeb3Modal({
   ethersConfig,
   chains: [{
-    chainId: 80002,
-    name: 'Amoy',
+    chainId: 137,
+    name: 'Polygon',
     currency: 'MATIC',
-    explorerUrl: 'https://goerli.etherscan.io/',
-    rpcUrl: "https://rpc-amoy.polygon.technology"
+    explorerUrl: 'https://polygon-rpc.com/',
+    rpcUrl: "https://polygon-rpc.com/"
   }],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
@@ -410,7 +410,7 @@ async function setupConnection() {
   connectedAccount = info.address;
   chainID = info.chainId;
   isConnected = info.isConnected;
-  isNetwork.value = true; //chainID.value == 80002;
+  isNetwork.value = true;
 
   console.log("Address:", connectedAccount.value);
   console.log("Chain ID:", chainID.value);
@@ -432,7 +432,7 @@ async function setupConnection() {
 
     // ----
     const signer = await ethersProvider.getSigner();
-    contractInstance.value = new Contract("0xeb923be1866a70439ff8892ffcf2a6c128f7069a", contract.value.abi, signer)
+    contractInstance.value = new Contract("0x56F46Ae0B3f8Aba3C4cf5f7924C482719314384F", contract.value.abi, signer)
     myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
     totalAvailable.value = await contractInstance.value.totalSupply();
     totalAvailable.value = Number(totalAvailable.value);
@@ -512,18 +512,18 @@ async function getData() {
 async function purchase() {
   await setupConnection();
   ticketID.value = (totalPurchased.value + 1).toString();
-  let fee = await devest.request("data/get", [props.product_id, "platformFee", {}]);
-  let price = await devest.request("data/get", [props.product_id, "price", {},]);
-  price = ethers.formatEther(Number(price).toString());
+  let fee = "0.3"; //await devest.request("data/get", [props.product_id, "platformFee", {}]);
+  //let price = "15300000000000000000"; //await devest.request("data/get", [props.product_id, "price", {},]);
+  //price = ethers.formatEther(Number(price).toString());
   
 
-  const finalPrice = Number(fee) + Number(price);
+  const finalPrice = "15360000000000000000"; //Number(fee) + Number(price);
 
   debugger;
 
   try {
     const res = await contractInstance.value.purchase(ticketID.value, {
-    value: ethers.parseEther(finalPrice.toString()),
+    value: finalPrice,
     from: connectedAccount.value
   });
   } catch (error) {

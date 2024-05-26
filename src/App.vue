@@ -3,7 +3,7 @@ import DigitalMusicCollection from './components/DigitalMusicCollection.vue'
 </script>
 
 <template>
-  <DigitalMusicCollection product_id="6634f1f9638f1f9866477e5d"></DigitalMusicCollection>
+  <DigitalMusicCollection product_id="664f549c643970cb99f66fb3"></DigitalMusicCollection>
 </template>
 
 <style scoped>
