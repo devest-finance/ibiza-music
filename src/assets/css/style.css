@@ -260,6 +260,10 @@
     height: 450px;
     border-radius: 8px;
   }
+  .faq {
+    font-size: 20px;
+    text-transform: uppercase;
+  }
   .info {
     border-radius: 8px;
     background-color: #5C4AB699;

@@ -11,6 +11,7 @@
         </div>
         <div class="wallet">
           <div class="terms">
+            <a href="faq.html">How to buy</a>
             <a href="termsandconditions.html">Terms and Conditions</a>
             <a href="privacypolicy.html">Privacy Policy</a>
           </div>
@@ -74,6 +75,7 @@
         </div>
         <div class="wallet">
           <div class="terms">
+            <a href="faq.html">How to buy</a>
             <a href="termsandconditions.html">Terms and Conditions</a>
             <a href="privacypolicy.html">Privacy Policy</a>
           </div>
@@ -136,7 +138,7 @@
               <div id="fill" class="progress" :style="{ width: percentage + '%' }"></div>
             </div>
             <div class="product_action_row">
-              <button class="first_button" @click="purchase()" :disabled="myTicketBalance || !(totalAvailable - totalPurchased)">Buy
+              <button class="first_button" @click="purchase()" :disabled="myTicketBalance || !(totalAvailable - totalPurchased)">Buy Now
                 ({{ totalAvailable - totalPurchased }}/{{ totalAvailable }})
               </button>
               <button class="third_button" :disabled="true" @click="sell()">Sell</button>
@@ -268,6 +270,7 @@ let myBalance = ref(0);
 let percentage = ref(0);
 let ticketID = ref("");
 let playUrl = ref("");
+let cookieSet = ref(1);
 
 const firstPage = ref(true);
 const secondPage = ref(false);
@@ -446,13 +449,23 @@ async function connectWallet() {
   await modal.open();
 }
 
-function handleTimeUpdate() {
+async function handleTimeUpdate() {
+  if (audioRef.value.currentTime === 0)
+    cookieSet.value = 1;
+  else if (cookieSet.value - currentTimeMinutes.value !== 1)
+    cookieSet.value = currentTimeMinutes.value + 1;
   if (audioRef.value && audioRef.value.currentTime) {
     currentTimeMinutes.value = Math.floor(audioRef.value.currentTime / 60);
     currentTimeSeconds.value = Math.floor(audioRef.value.currentTime) % 60;
     if (currentTimeSeconds.value < 10) currentTimeSeconds.value = "0" + currentTimeSeconds.value;
     progress.value = Math.floor((100 / audioRef.value.duration) * audioRef.value.currentTime);
   }
+
+  if (Math.floor(audioRef.value.currentTime) % 60 === 0 && cookieSet.value === currentTimeMinutes.value) {
+    authorize();
+    cookieSet.value++;
+  }
+    
 }
 
 function initializeAudioProperties() {
@@ -537,6 +550,36 @@ async function purchase() {
   totalPurchased.value = Number(totalPurchased.value);
   percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
   myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
+}
+
+function authorize() {
+  const token = localStorage.getItem("devest-token");
+  const wallet = localStorage.getItem("devest-wallet");
+  const networkChainId = network.value.chainId;
+  const productAddress = product.value.address;
+
+  const xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("GET", `https://nft.clubmixed.com/authorize/${(new Date().getTime())}`);
+  xmlhttp.setRequestHeader("signature", token);
+  xmlhttp.setRequestHeader("network", networkChainId);
+  xmlhttp.setRequestHeader("address", wallet);
+  xmlhttp.setRequestHeader("asset", productAddress);
+  xmlhttp.withCredentials = true;
+  xmlhttp.send();
+
+  if (xmlhttp.readyState === XMLHttpRequest.DONE) {
+    return xmlhttp;
+  }
+
+
+  xmlhttp.onreadystatechange = () => {
+    if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 200) {
+      console.log("New cookie assigned")
+    }
+    if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 403) {
+      alert("Sorry you are not authorized to watch this stream");
+    }
+  }
 }
 
 function play(index, track) {
