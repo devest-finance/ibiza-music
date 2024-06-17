@@ -524,6 +524,20 @@
   .policy ul {
     margin-top: 0px;
   }
+
+button:disabled i.fa-download {
+  color: gray; /* Change icon color to gray */
+  opacity: 0.5; /* Reduce opacity for a disabled look */
+  cursor: not-allowed; /* Change cursor to indicate disabled state */
+}
+
+/* If you want to change the before pseudo-element */
+button:disabled i.fa-download::before {
+  content: "\f019"; /* Example of changing the icon, use the correct unicode */
+  color: gray; /* Ensure the color change also applies to the pseudo-element */
+  opacity: 0.5; /* Match the opacity with the parent icon */
+}
+
   @media (max-width: 1700px) {
     .cards_row {
       grid-template-columns: repeat(4, 1fr);

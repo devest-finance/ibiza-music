@@ -120,7 +120,7 @@
           <div class="track_info">
             <div class="title">
               <h1>DEEP TECH SIZZLE</h1>
-              <h1 class="price_right">{{ cards[0].price }} {{ network.nativeCurrency?.symbol }}</h1>
+              <h1 class="price_right">{{ cards[0].price }} {{ network?.nativeCurrency?.symbol }}</h1>
             </div>
             <div class="title_info">
               <div>
@@ -128,12 +128,15 @@
                 <p><strong>Genre: </strong>Ambient, Electronic</p>
               </div>
               <div class="socials">
-                <a href="https://www.facebook.com/lennyibizarreofficial/"><i class="fa-brands fa-facebook"></i></a>
-                <a href="https://www.instagram.com/lennyibizarre/"><i class="fa-brands fa-instagram"></i></a>
-                <a href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
+                <a target="_blank" href="https://www.facebook.com/lennyibizarreofficial/"><i class="fa-brands fa-facebook"></i></a>
+                <a target="_blank" href="https://www.instagram.com/lennyibizarre/"><i class="fa-brands fa-instagram"></i></a>
+                <a target="_blank" href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
               </div>
             </div>
-            <p>In a rare turn of events we hear by bring you a selection of unreleased tracks from the elusive vault of the musical chameleon that is Lenny Ibizarre. The tunes, which stretches over 12 years of production, is a tasteful selection of groovy outliers most of whom had never seen the light of day until now. Enjoy the ride through a sprawling variety of deep electronic tech-house gems.</p>
+            <p>
+              In a rare turn of events we hear by bring you a selection of unreleased tracks from the elusive vault of the musical chameleon that is Lenny Ibizarre. The tunes, which stretches over 12 years of production, is a tasteful selection of groovy outliers most of whom had never seen the light of day until now. Enjoy the ride through a sprawling variety of deep electronic tech-house gems.
+              <br>Titles:&nbsp;<br>Computers Have Control 7:39, Sgt Poppers Skronk Quatet 9:06, Balearism 7:17, Gearbox 7:08, Girlz 8:46, Deep Finca 6:47, Psychotropic 9:43, Dirt Groove 7:44, Drivesharf 8:45, Nu York Dub 4:48, Baseheadz United 4:48, Kleptomania 7:15, Dawn of The Acid Warrior 6:22
+            </p>
             <div class="progress_bar">
               <div id="fill" class="progress" :style="{ width: percentage + '%' }"></div>
             </div>
@@ -159,7 +162,7 @@
                   <div class="duration">
                     <h4>{{ track.duration }}</h4>
                   </div>
-                  <button :disabled="!track.active"><i class="fa-solid fa-download"></i></button>
+                  <button :disabled="!hasIt()" @click.stop.prevent="download(index)"><i class="fa-solid fa-download"></i></button>
                 </div>
               </div>
             </div>
@@ -476,31 +479,32 @@ function initializeAudioProperties() {
   }
 }
 
+function hasIt(){
+  return myTicketBalance.value > 0;
+}
+
 async function download(track) {
-  try {
-        const response = await fetch(playUrl.value);
-        debugger;
-        if (!response.ok) {
-          throw new Error('Invalid response from server');  
-        }
-        const blob = await response.blob();
 
-        const url = URL.createObjectURL(blob);
+  await authorizeSync();
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = track.name; 
+  const url = `https://nft.clubmixed.com/download/${track}`;
+  const loadingIndicator = document.getElementById('loadingIndicator');
 
-        document.body.appendChild(a);
+  // Create a temporary iframe
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = url;
 
-        a.click();
+  // Append the iframe to the body
+  document.body.appendChild(iframe);
 
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } catch (error) {
-        console.error('Error downloading the audio file:', error);
-      }
-    }
+  // Remove the iframe after the download has started
+  iframe.onload = () => {
+    document.body.removeChild(iframe);
+  };
+
+ }
+
 
 function seek() {
   if (audioRef.value) {
@@ -528,11 +532,7 @@ async function purchase() {
   let fee = "0.3"; //await devest.request("data/get", [props.product_id, "platformFee", {}]);
   //let price = "15300000000000000000"; //await devest.request("data/get", [props.product_id, "price", {},]);
   //price = ethers.formatEther(Number(price).toString());
-  
-
   const finalPrice = "15360000000000000000"; //Number(fee) + Number(price);
-
-  debugger;
 
   try {
     const res = await contractInstance.value.purchase(ticketID.value, {
@@ -632,6 +632,37 @@ function play(index, track) {
       alert("Sorry you are not authorized to watch this stream");
     }
   }
+}
+
+async function authorizeSync(){
+  return new Promise( (resolve, reject) => {
+    const token = localStorage.getItem("devest-token");
+    const wallet = localStorage.getItem("devest-wallet");
+    const networkChainId = network.value.chainId;
+    const productAddress = product.value.address;
+
+    const xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", `https://nft.clubmixed.com/authorize/${(new Date().getTime())}`);
+    xmlhttp.setRequestHeader("signature", token);
+    xmlhttp.setRequestHeader("network", networkChainId);
+    xmlhttp.setRequestHeader("address", wallet);
+    xmlhttp.setRequestHeader("asset", productAddress);
+    xmlhttp.withCredentials = true;
+    xmlhttp.send();
+
+    if (xmlhttp.readyState === XMLHttpRequest.DONE) {
+      return xmlhttp;
+    }
+
+    xmlhttp.onreadystatechange = () => {
+      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 200) {
+        resolve(true);
+      }
+      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 403) {
+        resolve(false);
+      }
+    }
+  });
 }
 
 function playPause() {
