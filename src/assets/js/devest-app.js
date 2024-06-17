@@ -99,7 +99,7 @@ export class Devest {
       body: JSON.stringify(params),
     };
     return fetch(
-      "https://devest.finance/gateway/" + jurl,
+      "https://devest.app/gateway/" + jurl,
       requestOptions
     ).then((response) => response.json());
   }
