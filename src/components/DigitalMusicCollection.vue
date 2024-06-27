@@ -47,7 +47,7 @@
             <button class="first_button">Read More</button>
           </div>
         </a>
-        <div @click="changePage(card.link)" class="card" v-for="card of cards" v-bind:class="{ 'active' : card.link }">
+        <div @click="changePage(card)" class="card" v-for="card of cards" v-bind:class="{ 'active' : card.link }">
           <div class="img_row">
             <img :src="card.image">
           </div>
@@ -63,11 +63,11 @@
     </div>
   </div>
   
-  <div v-if="secondPage" class="container">
+  <div v-if="secondPage && tracks" class="container">
     <div class="content">
       <div class="title">
         <div class="logo">
-          <img @click="changePage('true')" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
+          <img @click="changePage({ link: 'true' })" src="../assets/images/streaming/clubmixedLogo.svg" style="cursor: pointer;"/>
           <div>
             <h1 style="margin-bottom: 0">NFT Music Collection</h1>
             <h2 style="margin-top: 0; color: aqua">Your Exclusive Beat Gateway! Discover. Own. Trade. Elevate.</h2>
@@ -91,7 +91,7 @@
       <div class="product_row">
         <div class="player">
           <div class="player_img">
-            <img src="../assets/images/streaming/LennyIbizzare.png">
+            <img v-bind:src="selectedProduct.image">
           </div>
           <div class="audio_player">
             <p v-if="(currentTimeMinutes !== null) && (currentTimeSeconds !== 0)">{{
@@ -119,13 +119,13 @@
           </div>
           <div class="track_info">
             <div class="title">
-              <h1>DEEP TECH SIZZLE</h1>
+              <h1>{{selectedProduct.title}}</h1>
               <h1 class="price_right">{{ cards[0].price }} {{ network?.nativeCurrency?.symbol }}</h1>
             </div>
             <div class="title_info">
               <div>
-                <p><strong>Artist: </strong>Lenny Ibizzare</p>
-                <p><strong>Genre: </strong>Ambient, Electronic</p>
+                <p><strong>Artist: </strong>{{selectedProduct.artist}}</p>
+                <p><strong>Genre: </strong>{{selectedProduct.genre}}</p>
               </div>
               <div class="socials">
                 <a target="_blank" href="https://www.facebook.com/lennyibizarreofficial/"><i class="fa-brands fa-facebook"></i></a>
@@ -133,10 +133,7 @@
                 <a target="_blank" href="https://www.linkedin.com"><i class="fa-brands fa-linkedin"></i></a>
               </div>
             </div>
-            <p>
-              In a rare turn of events we hear by bring you a selection of unreleased tracks from the elusive vault of the musical chameleon that is Lenny Ibizarre. The tunes, which stretches over 12 years of production, is a tasteful selection of groovy outliers most of whom had never seen the light of day until now. Enjoy the ride through a sprawling variety of deep electronic tech-house gems.
-              <br>Titles:&nbsp;<br>Computers Have Control 7:39, Sgt Poppers Skronk Quatet 9:06, Balearism 7:17, Gearbox 7:08, Girlz 8:46, Deep Finca 6:47, Psychotropic 9:43, Dirt Groove 7:44, Drivesharf 8:45, Nu York Dub 4:48, Baseheadz United 4:48, Kleptomania 7:15, Dawn of The Acid Warrior 6:22
-            </p>
+            <p v-html="selectedProduct.description"></p>
             <div class="progress_bar">
               <div id="fill" class="progress" :style="{ width: percentage + '%' }"></div>
             </div>
@@ -154,10 +151,10 @@
               <div v-if="tracks.length" class="track_list">
                 <div v-for="(track, index) of tracks" :class="{ 'track': true, 'track_active': track.active }"
                      @click="play(index, track)">
-                  <img src="../assets/images/streaming/LennyIbizzare.png"></img>
+                  <img v-bind:src="selectedProduct.image"></img>
                   <div class="track_name">
                     <h4>{{ track.name }}</h4>
-                    <p>Lenny Ibizarre</p>
+                    <p>{{ selectedProduct.artist }}</p>
                   </div>
                   <div class="duration">
                     <h4>{{ track.duration }}</h4>
@@ -234,18 +231,36 @@ const props = defineProps({
 
 const cards = Array.from({length: 15}, (_, i) => i + 1);
 
-import imageUrl from '@/assets/images/streaming/LennyIbizzare.png';
+import imageUrlLenny from '@/assets/images/streaming/LennyIbizzare.png';
+import imageUrlCoolyG from '@/assets/images/streaming/coolyg.jpg';
 import comingSoon from '@/assets/images/streaming/coming.jpg';
 
 cards[0] = {
-  image: imageUrl,
+  _id: "664f549c643970cb99f66fb3",
+  image: imageUrlLenny,
   title: "DEEP TECH SIZZLE",
-  artist: "LENNY IBIZZARE",
+  artist: "Lenny Ibizzare",
+  genre: "Ambient, Electronic",
   released: "15 MAY 2024",
+  description: "In a rare turn of events we hear by bring you a selection of unreleased tracks from the elusive vault of the musical chameleon that is Lenny Ibizarre. The tunes, which stretches over 12 years of production, is a tasteful selection of groovy outliers most of whom had never seen the light of day until now. Enjoy the ride through a sprawling variety of deep electronic tech-house gems." +
+      "<br>Titles:&nbsp;<br>Computers Have Control 7:39, Sgt Poppers Skronk Quatet 9:06, Balearism 7:17, Gearbox 7:08, Girlz 8:46, Deep Finca 6:47, Psychotropic 9:43, Dirt Groove 7:44, Drivesharf 8:45, Nu York Dub 4:48, Baseheadz United 4:48, Kleptomania 7:15, Dawn of The Acid Warrior 6:22",
   price: 15.00,
   link: true,
 };
-for (let i = 1; i < cards.length; i++) {
+cards[1] = {
+  _id: "667c27bf86af34871f76e6dc",
+  image: imageUrlCoolyG ,
+  title: "NFT Mix",
+  artist: "COOLY G",
+  released: "30 JUNE 2024",
+  description: "1. Bomboclaat (Cooly G), 2. Korallrevnlen (Try Anything Cooly G Mix), 3. Oi Dirty (COOLY G ft. DVA), 4. Molly (Cooly G), 5. Love Again (Cooly G), 6. Gritting (Cooly G),\n" +
+      "7. Dis Tribal Boy (Cooly G), 8. Akai (Cooly G), 9. Last Night (Cooly G), 10. The Sore Party (Cooly G Cooldub), 11. Trippin B (Cooly G), 12. Telepathy (Cooly G),\n" +
+      "13. Broken Boy (Cooly G), 14. Magnetic (Cooly G), 15. Waybay (Cooly G), 16. Craze Refix (Cooly G), 17. Wat Airtime (Cooly G), 18. Love Dub Remix (Cooly G)",
+  price: 15.00,
+  link: true,
+}
+
+for (let i = 2; i < cards.length; i++) {
   cards[i] = {
     image: comingSoon,
     title: "Coming Soon",
@@ -275,6 +290,8 @@ let ticketID = ref("");
 let playUrl = ref("");
 let cookieSet = ref(1);
 
+let selectedProduct = ref(null);
+
 const firstPage = ref(true);
 const secondPage = ref(false);
 const shuffleOn = ref(false);
@@ -303,7 +320,7 @@ onMounted(async () => {
     secondPage.value = !secondPage.value;
   }
 
-  await getData();
+  //await getData();
 
   const info = useWeb3ModalAccount();
   if (info.isConnected.value)
@@ -338,10 +355,14 @@ async function fetchTokenPrice() {
   }
 }
 
-async function changePage(doit) {
-  if (!doit) return;
+async function changePage(card) {
+  if (!card.link) return;
+
+  this.getData(card._id);
+
   firstPage.value = !firstPage.value;
   secondPage.value = !secondPage.value;
+  selectedProduct.value = card;
   history.pushState(null, null, window.location.pathname);
 }
 
@@ -436,15 +457,16 @@ async function setupConnection() {
       await createToken();
     }
 
-    // ----
-    const signer = await ethersProvider.getSigner();
-    contractInstance.value = new Contract("0x56F46Ae0B3f8Aba3C4cf5f7924C482719314384F", contract.value.abi, signer)
-    myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
-    totalAvailable.value = await contractInstance.value.totalSupply();
-    totalAvailable.value = Number(totalAvailable.value);
-    totalPurchased.value = await contractInstance.value.totalPurchased();
-    totalPurchased.value = Number(totalPurchased.value);
-    percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+    /*
+      const signer = await ethersProvider.getSigner();
+      contractInstance.value = new Contract("0x56F46Ae0B3f8Aba3C4cf5f7924C482719314384F", contract.value.abi, signer)
+      myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
+      totalAvailable.value = await contractInstance.value.totalSupply();
+      totalAvailable.value = Number(totalAvailable.value);
+      totalPurchased.value = await contractInstance.value.totalPurchased();
+      totalPurchased.value = Number(totalPurchased.value);
+      percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+    */
   }
 }
 
@@ -513,14 +535,30 @@ function seek() {
   }
 }
 
-async function getData() {
+async function getData(_id) {
   try {
-    const res = await devest.request("data/getData", [props.product_id, {}]);
+    const res = await devest.request("data/getData", [_id, {}]);
     product.value = res.payload.product;
     contract.value = res.payload.contract;
     network.value = res.payload.network;
     await loadTracks();
     await fetchTokenPrice();
+
+
+    const { walletProvider } = useWeb3ModalProvider();
+    const ethersProvider = new BrowserProvider(walletProvider.value)
+
+    // ----
+    const signer = await ethersProvider.getSigner();
+    contractInstance.value = new Contract(product.value.address, contract.value.abi, signer)
+    myTicketBalance.value = await contractInstance.value.balanceOf(connectedAccount.value);
+    myTicketBalance.value = Number(myTicketBalance.value);
+    totalAvailable.value = await contractInstance.value.totalSupply();
+    totalAvailable.value = Number(totalAvailable.value);
+    totalPurchased.value = await contractInstance.value.totalPurchased();
+    totalPurchased.value = Number(totalPurchased.value);
+    percentage.value = (totalAvailable.value - totalPurchased.value) / totalAvailable.value * 100;
+
   } catch (error) {
     console.log(error);
   }
